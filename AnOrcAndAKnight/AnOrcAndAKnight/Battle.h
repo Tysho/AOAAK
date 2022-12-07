@@ -20,12 +20,13 @@ private:
 
 	vector<TempModifier*> _listModifiers;
 public:
-	void PlayTurn();
+	void DisplayScore();
 	bool IsOver();
-	TempModifier* TriggerEffect(Skill* pSkill, Fighter& target);
+	string PlayTurn();
+	TempModifier* TriggerEffect(Skill* pSkill, Fighter& target, string& summary);
 
 private:
 	void InitBattle();
-	void DisplayConsoleTurn();
+	void LogTurnCount();
 };
 

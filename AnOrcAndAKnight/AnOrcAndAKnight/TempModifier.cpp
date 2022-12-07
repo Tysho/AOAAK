@@ -1,7 +1,6 @@
 #include "TempModifier.h"
 #include "Fighter.h"
 
-#include <string>
 #include <iostream>
 
 short TempModifier::Update()
@@ -13,11 +12,15 @@ short TempModifier::Update()
 	return _duration;
 }
 
-void DamageModifier::Affect()
+/// <summary>
+/// Apply effect to target and return summary
+/// </summary>
+/// <returns></returns>
+string DamageModifier::Affect()
 {
-	string s = "\t" + _target._name + " recieved " + to_string(_value) + " bonus damages for " + to_string(_duration) + " turn(s) !!\n";
-	cout << s;
 	_target._weapon._damages += _value;
+	string s = "\t" + _target._name + " recieved " + to_string(_value) + " bonus damages for " + to_string(_duration) + " turn(s) !!\n";
+	return s;
 }
 
 void DamageModifier::Expire()

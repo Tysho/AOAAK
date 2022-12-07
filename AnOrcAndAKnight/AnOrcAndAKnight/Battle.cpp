@@ -7,6 +7,7 @@
 #include <iostream>
 
 #define LOG(str) cout << "\n\t"; cout << str;
+#define LOG_SUMMARY(str) summary = summary + "\n\t" + str;
 
 Battle::Battle(Fighter& knight, Fighter& orc) : _knight(knight), _orc(orc)
 {
@@ -14,26 +15,26 @@ Battle::Battle(Fighter& knight, Fighter& orc) : _knight(knight), _orc(orc)
 }
 
 
-TempModifier* Battle::TriggerEffect(Skill* pSkill, Fighter& target)
+TempModifier* Battle::TriggerEffect(Skill* pSkill, Fighter& target, string& summary)
 {
-    TempModifier* pTM = pSkill->Cast(target);
+    TempModifier* pTM = pSkill->Cast(target, summary);
 
     if (pTM == nullptr)
         return pTM;
 
     _listModifiers.push_back(pTM);
-    pTM->Affect();
+    summary += pTM->Affect();
     return pTM;
 }
 
+/// Fight !!!
 void Battle::InitBattle()
 {
-    // Fight !!!
     LOG("FIIIGHT !!!\n");
     _turn = 1;
 }
 
-void Battle::DisplayConsoleTurn()
+void Battle::LogTurnCount()
 {
     string strTurn = to_string(_turn);
     if (_turn < 10)
@@ -42,9 +43,15 @@ void Battle::DisplayConsoleTurn()
     LOG("\t------------------------\n\t\t------- TURN " + strTurn + " --------\n\t\t------------------------\n");
 }
 
-void Battle::PlayTurn()
+/// <summary>
+/// Play a turn and return the summary as string
+/// </summary>
+/// <returns></returns>
+string Battle::PlayTurn()
 { 
-    DisplayConsoleTurn();
+    LogTurnCount();
+
+    string summary;
 
     // get lists of available skills
     vector<Skill*>&& listOrcSkills = _orc.GetAvailableSkillsThisTurn();
@@ -53,52 +60,53 @@ void Battle::PlayTurn()
     if (listOrcSkills.size() + list_knightSkills.size() > 0)
     {
         // don't remove brackets because two lines in "LOG"
-        LOG(">-  SKILL PHASE\n");
+        LOG_SUMMARY(">-  SKILL PHASE\n");
     }
 
     // orc skills
     for (int i = 0; i < listOrcSkills.size(); i++) {
         Skill* pSkill = listOrcSkills[i];
 
-        LOG(_orc._name + " uses his skill \"" + pSkill->_name + "\"");
+        LOG_SUMMARY(_orc._name + " uses his skill \"" + pSkill->_name + "\"");
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
-            TriggerEffect(pSkill, _knight);
+            TriggerEffect(pSkill, _knight, summary);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::self)
-            TriggerEffect(pSkill,_orc);
+            TriggerEffect(pSkill, _orc, summary);
 
-        cout << "\n";
+        summary += "\n";
     }
 
     // knight skills
     for (int i = 0; i < list_knightSkills.size(); i++) {
         Skill* pSkill = list_knightSkills[i];
 
-        LOG(_knight._name + " use his skill \"" + pSkill->_name + "\"");
+        LOG_SUMMARY(_knight._name + " use his skill \"" + pSkill->_name + "\"");
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
-            TriggerEffect(pSkill, _orc);
+            TriggerEffect(pSkill, _orc, summary);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::self)
-            TriggerEffect(pSkill, _knight);
+            TriggerEffect(pSkill, _knight, summary);
 
-        cout << "\n";
+        summary += "\n";
     }
 
-    LOG(">-  BATTLE PHASE\n");
+    LOG_SUMMARY(">-  BATTLE PHASE\n");
 
-    // then, exchange blows
-    if (_knight.IsStunned() == false) {
-        LOG(_orc._name + " attacks \"" + _knight._name + "\" with his " + _orc._weapon._name + "!");
-        _knight.RecieveDamages(_orc.GetDamages());
+    // knight attacks
+    if (_knight.IsStunned(summary) == false) {
+        LOG_SUMMARY(_knight._name + " attacks \"" + _orc._name + "\" with his " + _knight._weapon._name + "!");
+        _orc.RecieveDamages(_knight.GetDamages(), summary);
     }
 
     cout << "\n";
 
-    if (_orc.IsStunned() == false) {
-        LOG(_orc._name + " attacks \"" + _knight._name + "\" with his " + _knight._weapon._name + "!");
-        _orc.RecieveDamages(_knight.GetDamages());
+    // orc attacks
+    if (_orc.IsStunned(summary) == false) {
+        LOG_SUMMARY(_orc._name + " attacks \"" + _knight._name + "\" with his " + _orc._weapon._name + "!");
+        _knight.RecieveDamages(_orc.GetDamages(), summary);
     }
 
     // then, effects update
@@ -120,6 +128,8 @@ void Battle::PlayTurn()
     _orc.EndTurn();
 
    _turn++;
+   summary += "\n";
+   return summary;
 }
 
 bool Battle::IsOver()
@@ -131,3 +141,15 @@ bool Battle::IsOver()
     return false;
 }
 
+void Battle::DisplayScore() {
+
+    if (_knight._stats._currentHP == 0) {
+        LOG(_knight._name + ", sadly, didn't survive another day...\n");
+    }
+
+    if (_orc._stats._currentHP == 0) {
+        LOG(_orc._name + ", won't kiss his familly tonight...\n");
+    }
+
+    LOG("THE END\n\n");
+}

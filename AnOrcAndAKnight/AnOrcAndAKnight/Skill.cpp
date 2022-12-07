@@ -17,19 +17,19 @@ Stun::Stun() : Skill()
     _name = "Stun";
 };
 
-TempModifier* Stun::Cast(Fighter& target)
+TempModifier* Stun::Cast(Fighter& target, string& summary)
 {
-    Skill::Cast(target);
+    Skill::Cast(target, summary);
 
     // miss ?
     int random = rand() % 100;
     if (_accuracy <= random) {
-        LOG("\t" + target._name + " avoid the blow of his opponent weapon !");
+        summary += "\n\t\t" + target._name + " avoid the blow of his opponent weapon !";
         return nullptr;
     }
 
     // hit !
-    LOG("\t" + target._name + " got stunned !");
+    summary += "\n\t\t" + target._name + " got stunned !";
     target.Stun(1);
     return nullptr;
 }
@@ -42,18 +42,18 @@ Chaaaaaarge::Chaaaaaarge() : Skill() {
     _name = "Chaaaaaarge !!!";
 };
 
-TempModifier* Chaaaaaarge::Cast(Fighter& target) {
-    Skill::Cast(target);
+TempModifier* Chaaaaaarge::Cast(Fighter& target, string& summary) {
+    Skill::Cast(target, summary);
 
     // miss ?
     int random = rand() % 100;
     if (_accuracy <= random) {
-        LOG("\t" + target._name + " miserably miss his charge...");
+        summary += "\n\t\t" + target._name + " miserably miss his charge...";
         return nullptr;
     }
 
     // damages doubled for 1 turn !
-    LOG("\t" + target._name + " chaaaaaarges !!!!");
+    summary += "\n\t\t" + target._name + " chaaaaaarges !!!!";
 
     int bonusDamages = target._weapon._damages;
     DamageModifier* pDM = new DamageModifier(target, 1, bonusDamages);
@@ -69,7 +69,7 @@ Skill::Skill()
     _accuracy = 50;
 };
 
-TempModifier* Skill::Cast(Fighter& target)
+TempModifier* Skill::Cast(Fighter& target, string& summary)
 {
     _timer = _cooldown;
     return nullptr;

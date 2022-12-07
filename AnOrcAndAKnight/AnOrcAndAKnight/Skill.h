@@ -23,13 +23,13 @@ public:
 	std::string _name;
 	TypeTarget _target;
 	short _timer;		// timer left before next cast
+	int _accuracy;		// percentage (0 = never hit to 100 = always hit)
 
 protected:
 	short _cooldown;	// delay between 2 casts
-	int _accuracy;		// percentage (0 = never hit to 100 = always hit)
 
 public:
-	virtual TempModifier* Cast(Fighter& target);
+	virtual TempModifier* Cast(Fighter& target, string& summary);
 	void EndTurn();
 };
 
@@ -39,7 +39,7 @@ public:
 	virtual ~Stun() {};
 
 public:
-	virtual TempModifier* Cast(Fighter& target);
+	virtual TempModifier* Cast(Fighter& target, string& summary) final;
 };
 
 class Chaaaaaarge : public Skill {
@@ -48,5 +48,5 @@ public:
 	virtual ~Chaaaaaarge() {};
 
 public:
-	virtual TempModifier* Cast(Fighter& target) final;
+	virtual TempModifier* Cast(Fighter& target, string& summary) final;
 };

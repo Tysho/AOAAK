@@ -4,7 +4,9 @@
 #include "Fighter.h"
 #include "Battle.h"
 #include "Skill.h"
+#include "UITools.h"
 
+#include <conio.h>
 #include <iostream>
 
 using namespace std;
@@ -22,6 +24,7 @@ int main()
     // create an orc to fight against
     Fighter orc("Gromek", Weapon("axe", 8), Stats(60, 0));
     Stun orcStun;
+    orcStun._accuracy = 100;
     orc.AddSkill(&orcStun);
 
     Battle battle(knight, orc);
@@ -29,19 +32,17 @@ int main()
     // list of all modifier currently applying on both fighters
     int turn = 1;
     do {
-        battle.PlayTurn();
-       
+        int a = _getch();
+        system("cls");   // Clear output for next display
+        string summary = battle.PlayTurn();       
+        UITools::DrawStats(knight, orc);
+        cout << summary;
         turn++;
-        cout << "\n";
     } while (battle.IsOver() == false);
-    
-    if (knight._stats._currentHP == 0) 
-        cout << knight._name + ", sadly, didn't survive another day...\n";
-    
-    if (orc._stats._currentHP == 0) 
-        cout << orc._name + ", won't kiss his familly tonight...\n";
-    
-    cout << "\n\nTHE END";
+
+    int a = _getch();
+    system("cls");   // Clear output for next display
+    battle.DisplayScore();
 }
 
 // Exécuter le programme : Ctrl+F5 ou menu Déboguer > Exécuter sans débogage

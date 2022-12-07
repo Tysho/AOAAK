@@ -62,9 +62,9 @@ public:
 	void Stun(int duration);
 	void AddSkill(Skill* pSkill);
 	bool IsDead();
-	bool IsStunned();
+	bool IsStunned(string& summary);
 	unsigned int GetDamages();
-	Stats RecieveDamages(int damages);
+	Stats RecieveDamages(int damages, string& summary);
 	std::vector<Skill*> GetAvailableSkillsThisTurn();
 };
 

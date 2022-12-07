@@ -1,4 +1,6 @@
 #pragma once
+
+#include <string>
 class Fighter;
 
 class TempModifier {
@@ -11,7 +13,7 @@ protected:
 	Fighter& _target;
 
 public:
-	virtual void Affect() = 0;
+	virtual std::string Affect() = 0;
 	virtual void Expire() = 0;
 	short Update();
 };
@@ -26,7 +28,7 @@ private:
 	int _value = 1;
 
 public:
-	virtual void Affect() final;
+	virtual std::string Affect() final;
 	virtual void Expire() final;
 };
 
