@@ -64,7 +64,7 @@ public:
 	bool IsDead();
 	bool IsStunned(string& summary);
 	unsigned int GetDamages();
-	Stats RecieveDamages(int damages, string& summary);
+	Stats RecieveDamages(int damages);
 	std::vector<Skill*> GetAvailableSkillsThisTurn();
 };
 

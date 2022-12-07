@@ -16,6 +16,11 @@ int main()
     // init random number generation seed with current time, so the fights won't end the same every time
     srand((unsigned int)time(0));
 
+    // pour plus tard
+    string mystr;
+    cout << "What's your name? ";
+    getline(cin, mystr);
+
     // create a knight
     Fighter knight("Lord Belmesh", Weapon("long sword", 5), Stats(20, 50));
     Chaaaaaarge knightCharge;
@@ -29,34 +34,58 @@ int main()
 
     Battle battle(knight, orc);
 
-    int a = _getch(); // var to prevent warning with _getch();
-
     // list of all modifier currently applying on both fighters
-    int turn = 1;
-    do {
-        a = _getch();
-        system("cls");   // Clear output for next display
-        string summary = battle.PlayTurn();       
-        UITools::DrawStats(knight, orc);
-        cout << summary;
-        turn++;
-    } while (battle.IsOver() == false);
+    while (1) {
+        int key = _getch();
 
-    a = _getch();
-    system("cls");   // Clear output for next display
-    battle.DisplayScore();
-    a = _getch();
-    system("cls");   // Clear output for next display
+        // clicking on an arrow trigger _getch twice : first 224 (not interesting), we will look for the second one
+        if (key == 224)
+            key += _getch();
+
+        // left-arrow (296) OR up-arrow (299) -> we get previous display from history
+        if (key == 296 || key == 299) {
+            UITools::DisplayPreviousTurn();
+            continue;
+        }
+
+        // only allow 301 (rightArrow), 304 (downArrow), 32 (spacebar) and enter (13)
+        if (key != 301 && key != 304 && key != 32 && key != 13)
+            continue;
+
+        // if next turn already computed (from history), we just display it
+        if (UITools::DisplayNextTurn())
+            continue;
+
+        // we are on the end screen
+        if (battle.IsOver())
+        {
+            system("cls");
+
+            battle.DisplayScore();
+            
+            key = _getch();
+            if (key == 224)
+                key += _getch();
+
+            // we can still visit history
+            if (key == 296 || key == 298) {
+                UITools::DisplayPreviousTurn(true);
+                continue;
+            }
+
+            // if we continue now we are on the last screen, it's over
+            if (key == 301 || key == 304 || key == 32 || key == 13)
+                break;
+        }
+
+        battle.PlayTurn();
+
+        // display result screen
+        UITools::DrawTurn(knight, orc);
+
+    }
+
+    _getch();
+    system("cls");
     return 1;
 }
-
-// Exécuter le programme : Ctrl+F5 ou menu Déboguer > Exécuter sans débogage
-// Déboguer le programme : F5 ou menu Déboguer > Démarrer le débogage
-
-// Astuces pour bien démarrer : 
-//   1. Utilisez la fenêtre Explorateur de solutions pour ajouter des fichiers et les gérer.
-//   2. Utilisez la fenêtre Team Explorer pour vous connecter au contrôle de code source.
-//   3. Utilisez la fenêtre Sortie pour voir la sortie de la génération et d'autres messages.
-//   4. Utilisez la fenêtre Liste d'erreurs pour voir les erreurs.
-//   5. Accédez à Projet > Ajouter un nouvel élément pour créer des fichiers de code, ou à Projet > Ajouter un élément existant pour ajouter des fichiers de code existants au projet.
-//   6. Pour rouvrir ce projet plus tard, accédez à Fichier > Ouvrir > Projet et sélectionnez le fichier .sln.

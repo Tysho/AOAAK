@@ -1,32 +1,41 @@
 #include "UITools.h"
-
 #include "Fighter.h"
+
 #include <iostream>
 
 #define SCREEN_WIDTH 111
 
+int UITools::_currentTurn = -1;
+string UITools::_summary;
+string UITools::_header;
+vector<string> UITools::_history;
+
 // add an empty line with separator on the middle
-static void AddEmtpyLine() {
-	cout << "\t";
+static string AddEmtpyLine() {
+	string display = "\t";
 	for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
 		if (i == (SCREEN_WIDTH - 5) / 2) { // -5 > -4 for left margin and -1 for separator
-			cout << "|";
+			display = "|";
 			i++;
 		}
-		cout << " ";
+		display = " ";
 	}
-	cout << "\n\t";
+	display = "\n\t";
+	
+	return display;
 }
 
 /// <summary>
-/// Draw life or shield bar for both Fighters, return true if something was actually drawn
+/// Draw life or shield bar for both Fighters, return string which will be displayed
 /// </summary>
 /// <param name="isHp">true > HP / false > shield </param>
 /// <param name="left"></param>
 /// <param name="right"></param>
 /// <returns></returns>
-bool DrawBar(bool isHp, const Stats& left, const Stats& right) 
+string DrawBar(bool isHp, const Stats& left, const Stats& right) 
 {
+	string result;
+
 	int barreWidth = (SCREEN_WIDTH - 24) / 2;	// 24 = 10 for middle space each side of the separator "|" + 4 space for left margin
 
 	int leftCur = isHp ? left._currentHP : left._currentShield;
@@ -36,39 +45,40 @@ bool DrawBar(bool isHp, const Stats& left, const Stats& right)
 
 	// no shield for both figthers ?
 	if (isHp == false && leftMax + rightMax == 0)
-		return false;
+		return "";
 
 	// left bar (if shield bar for no shield fighter, don't display)
 	if (isHp || leftMax > 0) {
 		int hpPlain = leftCur * barreWidth / leftMax;
 		for (int i = 0; i < hpPlain; i++)
-			cout << char(219);
+			result += char(219);
 		for (int i = hpPlain; i < barreWidth; i++)
-			cout << char(176);
+			result += char(176);
 	}
 	else {
 		for (int i = 0; i < barreWidth; i++)
-			cout << "";
+			result += "";
 	}
 
 	// separator
-	cout << "          |          ";
+	result += "          |          ";
 
 	// right bar (if shield bar for no shield fighter, don't display)
 
 	if (isHp || rightMax > 0) {
 		int hpPlain = rightCur * barreWidth / rightMax;
 		for (int i = 0; i < hpPlain; i++)
-			cout << char(219);
+			result += char(219);
 		for (int i = hpPlain; i < barreWidth; i++)
-			cout << char(176);
+			result += char(176);
 	}
-	cout << "\n\t";
-	return true;
+	result += "\n\t";
+
+	return result;
 }
 
 
-void DisplayValue(bool isHp, const Stats& left, const Stats& right)
+string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 {
 	string dataType = isHp ? "HP : " : "Shield : ";
 	int leftCur = isHp ? left._currentHP : left._currentShield;
@@ -86,47 +96,115 @@ void DisplayValue(bool isHp, const Stats& left, const Stats& right)
 	if (rightMax <= 0)
 		rightHpCounter = "";
 
-	cout << leftHpCounter;
-	for (int i = leftHpCounter.size(); i < SCREEN_WIDTH - rightHpCounter.size() - 4; i++) {
+	string result = leftHpCounter;
+	for (int i = (int)leftHpCounter.size(); i < SCREEN_WIDTH - rightHpCounter.size() - 4; i++) {
 		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 > -1 for separator and -4 for left margin
-			cout << "|";
+			result += "|";
 			i++;
 		}
-		cout << " ";
+		result += " ";
 	}
-	cout << rightHpCounter + "\n";
+	result += rightHpCounter + "\n";
+	
+	return result;
 }
 
-void UITools::DrawStats(const Fighter& left, const Fighter& right)
+void UITools::LogSummary(const string& text)
 {
-	cout << "\n\t";
-	string test;
+	_summary += "\n\t" + text;
+}
+
+void UITools::LogHeader(const string& text)
+{
+	_header += "\n\t" + text;
+}
+
+string UITools::DrawStats(const Fighter& left, const Fighter& right)
+{
+	string display = "\n\t";
 
 	// names of the fighters
-	cout << left._name;
-	int separatorLength = SCREEN_WIDTH - left._name.size() - right._name.size() - 4; // - 4 for left margin
-	for (int i = 0; i < separatorLength; i++)
-	{
-		if(i)
-		cout << " ";
+	display += left._name;
+
+	int separatorLength = int(SCREEN_WIDTH - left._name.size() - right._name.size() - 4); // - 4 for left margin
+	for (int i = 0; i < separatorLength; i++) {
+		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 > -1 for separator and -4 for left margin
+			display += "|";
+			i++;
+		}
+		display += " ";
 	}
-	cout << right._name;
-	cout << "\n\t";
+
+	display += right._name + "\n\t";
 
 	// LIFE BARS
-	DrawBar(true, left._stats, right._stats);
+	display += DrawBar(true, left._stats, right._stats);
 
 	// HP VALUES
-	DisplayValue(true, left._stats, right._stats);
+	display += DisplayValue(true, left._stats, right._stats);
 
-	AddEmtpyLine();
+	display += AddEmtpyLine();
 
 	// SHIELD BARS
-	bool shieldsDrawn = DrawBar(false, left._stats, right._stats);
+	string shieldsDraw = DrawBar(false, left._stats, right._stats);
 	
 	// SHIELDS VALUES
-	if (shieldsDrawn) {
-		DisplayValue(false, left._stats, right._stats);
-		AddEmtpyLine();
+	if (shieldsDraw != "") {
+		display += shieldsDraw;
+		display += DisplayValue(false, left._stats, right._stats);
+		display += AddEmtpyLine();
 	}
+
+	return display;
+}
+
+void UITools::DrawTurn(const Fighter& left, const Fighter& right) {
+
+	system("cls");   // Clear output for next display
+
+	// save header
+	string screen = _header;
+	_header = "";
+	
+	// get stats display (bars etc.)
+	screen += DrawStats(left, right);
+
+	// finally summary
+	screen += _summary;
+	_summary = "";
+
+	// save history
+	_history.push_back(screen);
+	
+	// display everything on console
+	cout << screen;
+
+	_currentTurn = _history.size() - 1;
+}
+
+bool UITools::DisplayNextTurn() {
+	if (_currentTurn >= _history.size() - 1)
+		return false;
+
+	system("cls");   // Clear output for next display
+
+	_currentTurn++;
+	cout << _history[_currentTurn];
+	return true;
+}
+
+void UITools::DisplayPreviousTurn(bool forceLastTurn) {
+	if (_history.size() == 0)
+		return;
+
+	if (_currentTurn == 0)
+		return;
+
+	system("cls");   // Clear output for next display
+
+	if (forceLastTurn)
+		_currentTurn = _history.size() - 1;
+	else 
+		_currentTurn--;
+	cout << _history[_currentTurn];
 }

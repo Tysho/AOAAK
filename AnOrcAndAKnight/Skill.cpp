@@ -2,6 +2,7 @@
 
 #include "Fighter.h"
 #include "TempModifier.h"
+#include "UITools.h"
 
 #include <string>
 #include <iostream>
@@ -17,19 +18,21 @@ Stun::Stun() : Skill()
     _name = "Stun";
 };
 
-TempModifier* Stun::Cast(Fighter& target, string& summary)
+TempModifier* Stun::Cast(Fighter& target)
 {
-    Skill::Cast(target, summary);
+    Skill::Cast(target);
 
     // miss ?
     int random = rand() % 100;
     if (_accuracy <= random) {
-        summary += "\n\t\t" + target._name + " avoid the blow of his opponent weapon !";
+        string log = "\n\t\t" + target._name + " avoid the blow of his opponent weapon !";
+        UITools::LogSummary(log);
         return nullptr;
     }
 
     // hit !
-    summary += "\n\t\t" + target._name + " got stunned !";
+    string log = "\n\t\t" + target._name + " got stunned !";
+    UITools::LogSummary(log);
     target.Stun(1);
     return nullptr;
 }
@@ -42,18 +45,20 @@ Chaaaaaarge::Chaaaaaarge() : Skill() {
     _name = "Chaaaaaarge !!!";
 };
 
-TempModifier* Chaaaaaarge::Cast(Fighter& target, string& summary) {
-    Skill::Cast(target, summary);
+TempModifier* Chaaaaaarge::Cast(Fighter& target) {
+    Skill::Cast(target);
 
     // miss ?
     int random = rand() % 100;
     if (_accuracy <= random) {
-        summary += "\n\t\t" + target._name + " miserably miss his charge...";
+        string log = "\n\t\t" + target._name + " miserably miss his charge...";
+        UITools::LogSummary(log);
         return nullptr;
     }
 
     // damages doubled for 1 turn !
-    summary += "\n\t\t" + target._name + " chaaaaaarges !!!!";
+    string log = "\n\t\t" + target._name + " chaaaaaarges !!!!";
+    UITools::LogSummary(log);
 
     int bonusDamages = target._weapon._damages;
     DamageModifier* pDM = new DamageModifier(target, 1, bonusDamages);
@@ -69,7 +74,7 @@ Skill::Skill()
     _accuracy = 50;
 };
 
-TempModifier* Skill::Cast(Fighter& target, string& summary)
+TempModifier* Skill::Cast(Fighter& target)
 {
     _timer = _cooldown;
     return nullptr;

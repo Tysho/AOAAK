@@ -29,7 +29,7 @@ protected:
 	short _cooldown;	// delay between 2 casts
 
 public:
-	virtual TempModifier* Cast(Fighter& target, string& summary);
+	virtual TempModifier* Cast(Fighter& target);
 	void EndTurn();
 };
 
@@ -39,7 +39,7 @@ public:
 	virtual ~Stun() {};
 
 public:
-	virtual TempModifier* Cast(Fighter& target, string& summary) final;
+	virtual TempModifier* Cast(Fighter& target) final;
 };
 
 class Chaaaaaarge : public Skill {
@@ -48,5 +48,5 @@ public:
 	virtual ~Chaaaaaarge() {};
 
 public:
-	virtual TempModifier* Cast(Fighter& target, string& summary) final;
+	virtual TempModifier* Cast(Fighter& target) final;
 };

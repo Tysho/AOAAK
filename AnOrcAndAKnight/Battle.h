@@ -22,8 +22,8 @@ private:
 public:
 	void DisplayScore();
 	bool IsOver();
-	string PlayTurn();
-	TempModifier* TriggerEffect(Skill* pSkill, Fighter& target, string& summary);
+	void PlayTurn();
+	TempModifier* TriggerEffect(Skill* pSkill, Fighter& target);
 
 private:
 	void InitBattle();

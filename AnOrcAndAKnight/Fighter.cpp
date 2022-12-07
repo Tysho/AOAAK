@@ -1,12 +1,12 @@
 #include "Fighter.h"
 
 #include "Skill.h"
+#include "UITools.h"
 
 #include <string>
 #include <iostream>
 
 #define LOG(str) cout << "\n\t"; cout << str;
-#define LOG_SUMMARY(str) summary = summary + "\n\t" + str;
 
 using namespace std;
 
@@ -21,7 +21,7 @@ unsigned int Fighter::GetDamages()
     return _weapon._damages;
 }
 
-Stats Fighter::RecieveDamages(int damages, string& summary)
+Stats Fighter::RecieveDamages(int damages)
 {
     // no damages ? then nothing
     if (damages == 0)
@@ -35,7 +35,7 @@ Stats Fighter::RecieveDamages(int damages, string& summary)
         // shield still ok
         if (_SHIELD > 0) {
             text += "\t(shield left : " + to_string(_SHIELD) + "/" + to_string(_stats._maxShield) + ")";
-            LOG_SUMMARY(text);
+            UITools::LogSummary(text);
             return _stats;
         }
 
@@ -43,14 +43,15 @@ Stats Fighter::RecieveDamages(int damages, string& summary)
         damages = -_SHIELD;
         _SHIELD = 0;
         text += "\n\t\tThe shield of " + _name + " just explode ! No more shield :(";
-        LOG_SUMMARY(text);
+        UITools::LogSummary(text);
     }
 
     // no(more) shield -> damage to HP
     _HP -= damages;
     _HP = max(0, _HP);
   
-    LOG_SUMMARY("\t" + _name + " recieved " + to_string(damages) + " damages !!!\t(" + to_string(_HP) + "/" + to_string(_stats._maxHP) + ")");
+    string log = "\t" + _name + " recieved " + to_string(damages) + " damages !!!\t(" + to_string(_HP) + "/" + to_string(_stats._maxHP) + ")";
+    UITools::LogSummary(log);
 
     return _stats;
 }
