@@ -147,6 +147,7 @@
     <ClCompile Include="UITools.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnOrcAndAKnight.h" />
     <ClInclude Include="Fighter.h" />
     <ClInclude Include="Battle.h" />
     <ClInclude Include="Skill.h" />

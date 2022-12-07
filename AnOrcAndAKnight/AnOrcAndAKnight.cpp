@@ -16,11 +16,6 @@ int main()
     // init random number generation seed with current time, so the fights won't end the same every time
     srand((unsigned int)time(0));
 
-    // pour plus tard
-    string mystr;
-    cout << "What's your name? ";
-    getline(cin, mystr);
-
     // create a knight
     Fighter knight("Lord Belmesh", Weapon("long sword", 5), Stats(20, 50));
     Chaaaaaarge knightCharge;
@@ -29,9 +24,24 @@ int main()
     // create an orc to fight against
     Fighter orc("Gromek", Weapon("axe", 8), Stats(60, 0));
     Stun orcStun;
-    orcStun._accuracy = 100;
     orc.AddSkill(&orcStun);
 
+    // pour plus tard
+    int key = -1;
+    cout << "do you want to customize the fighters ? (y or n)";
+    do {
+        key = _getch();
+        if (key == 224)
+            key += _getch();
+
+        // yes => display form to edit Fighters
+        if (key == 121) {
+            UITools::LaunchEditForm(knight, orc);
+        }
+    } while (key != 121 && key != 110);
+
+   
+    // begin battle
     Battle battle(knight, orc);
 
     // list of all modifier currently applying on both fighters

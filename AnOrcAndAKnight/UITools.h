@@ -16,11 +16,12 @@ public:
 	static vector<string> _history;
 
 public:
+	static bool DisplayNextTurn();
+	static void DisplayPreviousTurn(bool forceLastTurn = false); 
 	static void DrawTurn(const Fighter& left, const Fighter& right);
+	static void LaunchEditForm(Fighter& knight, Fighter& orc);
 	static void LogSummary(const string& text);
 	static void LogHeader(const string& text);
-	static bool DisplayNextTurn();
-	static void DisplayPreviousTurn(bool forceLastTurn = false);
 private:
 	static string DrawStats(const Fighter& left, const Fighter& right);
 };

@@ -158,8 +158,8 @@ string UITools::DrawStats(const Fighter& left, const Fighter& right)
 	return display;
 }
 
-void UITools::DrawTurn(const Fighter& left, const Fighter& right) {
-
+void UITools::DrawTurn(const Fighter& left, const Fighter& right) 
+{
 	system("cls");   // Clear output for next display
 
 	// save header
@@ -182,7 +182,8 @@ void UITools::DrawTurn(const Fighter& left, const Fighter& right) {
 	_currentTurn = _history.size() - 1;
 }
 
-bool UITools::DisplayNextTurn() {
+bool UITools::DisplayNextTurn() 
+{
 	if (_currentTurn >= _history.size() - 1)
 		return false;
 
@@ -193,7 +194,8 @@ bool UITools::DisplayNextTurn() {
 	return true;
 }
 
-void UITools::DisplayPreviousTurn(bool forceLastTurn) {
+void UITools::DisplayPreviousTurn(bool forceLastTurn) 
+{
 	if (_history.size() == 0)
 		return;
 
@@ -207,4 +209,61 @@ void UITools::DisplayPreviousTurn(bool forceLastTurn) {
 	else 
 		_currentTurn--;
 	cout << _history[_currentTurn];
+}
+
+void UITools::LaunchEditForm(Fighter& knight, Fighter& orc)
+{
+	cout << "Name of the Knight : ";
+	string custom;
+	getline(cin, custom);
+	knight._name = custom;
+
+	cout << "\"" + knight._name + "\" HP (enter a number) : ";
+	do {
+		getline(cin, custom);
+	} while (false); // is not a number
+	knight._stats._currentHP = knight._stats._maxHP = atoi(custom.c_str());
+
+	cout << "\"" + knight._name + "\" Shield value (enter a number) : ";
+	do {
+		getline(cin, custom);
+	} while (false); // is not a number
+	knight._stats._currentShield = knight._stats._maxShield = atoi(custom.c_str());
+
+	cout << "\"" + knight._name + "\" weapon's name : ";
+	getline(cin, custom);
+	knight._weapon._name = custom;
+
+	cout << "damage inflicted by \"" + knight._weapon._name + "\" : (enter a number) : ";
+	do {
+		getline(cin, custom);
+	} while (false); // is not a number
+	knight._weapon._damages = atoi(custom.c_str());
+
+	cout << "Name of the Orc : ";
+	getline(cin, custom);
+	orc._name = custom;
+
+	cout << "\"" + orc._name + "\" HP (enter a number) : ";
+	do {
+		getline(cin, custom);
+	} while (false); // is not a number
+	orc._stats._currentHP = orc._stats._maxHP = atoi(custom.c_str());
+
+	cout << "\"" + orc._name + "\" Shield value (enter a number) : ";
+	do {
+		getline(cin, custom);
+	} while (false); // is not a number
+	orc._stats._maxShield = atoi(custom.c_str());
+	orc._stats._currentShield = orc._stats._maxShield;
+
+	cout << "\"" + orc._name + "\" weapon's name : ";
+	getline(cin, custom);
+	orc._weapon._name = custom;
+
+	cout << "damage inflicted by \"" + orc._weapon._name + "\" : (enter a number) : ";
+	do {
+		getline(cin, custom);
+	} while (false); // is not a number
+	orc._weapon._damages = atoi(custom.c_str());
 }
