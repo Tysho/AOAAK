@@ -1,29 +1,18 @@
 // AnOrcAndAKnight.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
 //
+
 #include "Fighter.h"
+#include "Battle.h"
 #include "Skill.h"
-#include "TempModifier.h"
 
 #include <iostream>
 
-vector<TempModifier*> listModifiers;
-
-TempModifier* TriggerEffect(Skill* pSkill, Fighter& target) 
-{
-    TempModifier* pTM = pSkill->Trigger(target);
-
-    if (pTM == nullptr)
-        return pTM;
-
-    listModifiers.push_back(pTM);
-    pTM->Affect();
-    return pTM;
-};
-
+using namespace std;
 
 int main()
 {
-    cout << "Hello World!\n";
+    // init random number generation seed with current time, so the fights won't end the same every time
+    srand((unsigned int)time(0));
 
     // create a knight
     Fighter knight("Lord Belmesh", Weapon("long sword", 5), Stats(20, 50));
@@ -35,80 +24,16 @@ int main()
     Stun orcStun;
     orc.AddSkill(&orcStun);
 
-    // Fight !!!
-    cout << "\n\n\tFIIIGHT\n";
+    Battle battle(knight, orc);
 
     // list of all modifier currently applying on both fighters
-    int turnCnt = 1;
+    int turn = 1;
     do {
-        cout << "\t--------------\n";
-        cout << "\t--- TURN " + to_string(turnCnt) + " ---\n";
-        cout << "\t--------------\n\n";
-
-        // first, apply skill if possible
-        vector<Skill*>&& listOrcSkills = orc.GetAvailableSkillsThisTurn();
-        vector<Skill*>&& listKnightSkills = knight.GetAvailableSkillsThisTurn();
-
-        if (listOrcSkills.size() + listKnightSkills.size() > 0) 
-            cout << "\n----------  SKILL PHASE  ----------\n\n";
-
-        // orc skills
-        for (int i = 0; i < listOrcSkills.size(); i++) {
-            Skill* pSkill = listOrcSkills[i];
-
-            cout << orc._name + " use his skill \"" + pSkill->_name +"\"\n";
-
-            if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
-                TriggerEffect(pSkill, knight);
-
-            if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::self)
-                TriggerEffect(pSkill, orc);
-
-            cout << "\n\n";
-        }
-
-        // knight skills
-        for (int i = 0; i < listKnightSkills.size(); i++) {
-            Skill* pSkill = listKnightSkills[i];
-
-            cout << orc._name + " use his skill \"" + pSkill->_name + "\"\n";
-
-            if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
-                TriggerEffect(pSkill, orc);
-
-            if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::self)
-                TriggerEffect(pSkill, knight);
-
-            cout << "\n";
-        }
-
-        knight.EndTurn();
-        orc.EndTurn();
-
-        cout << "\n----------  BATTLE PHASE  ---------\n\n";
-
-        // then, effects update
-        for (int i = 0; i < listModifiers.size(); i++) {
-            TempModifier* pTM = listModifiers[i];
-
-            // effect still apply
-            if (pTM->Update() > 0)
-                continue;
-
-            // expired, we remove it from the list
-            listModifiers.erase(listModifiers.begin() + i);
-            delete pTM;
-            pTM = nullptr;
-            i--;
-        }
-
-        // then, exchange blows
-        knight.InflictDamages(orc.GetDamages());
-        orc.InflictDamages(knight.GetDamages());
-        
-        turnCnt++;
+        battle.PlayTurn();
+       
+        turn++;
         cout << "\n";
-    } while (knight._stats._currentHP > 0 && orc._stats._currentHP > 0);
+    } while (battle.IsOver() == false);
     
     if (knight._stats._currentHP == 0) 
         cout << knight._name + ", sadly, didn't survive another day...\n";

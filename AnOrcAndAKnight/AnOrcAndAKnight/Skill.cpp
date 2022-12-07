@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 
+#define LOG(str) cout << "\n\t"; cout << str;
+
 Stun::Stun() : Skill()
 {
     _target = TypeTarget::opponent;
@@ -15,20 +17,19 @@ Stun::Stun() : Skill()
     _name = "Stun";
 };
 
-TempModifier* Stun::Trigger(Fighter& target)
+TempModifier* Stun::Cast(Fighter& target)
 {
-    Skill::Trigger(target);
+    Skill::Cast(target);
 
     // miss ?
     int random = rand() % 100;
     if (_accuracy <= random) {
-        string s = "\t" + target._name + " avoid the blow of his opponent weapon !\n";
-        cout << s;
+        LOG("\t" + target._name + " avoid the blow of his opponent weapon !");
         return nullptr;
     }
 
-    string s = target._name + " got stunned !\n";
-    cout << s;
+    // hit !
+    LOG("\t" + target._name + " got stunned !");
     target.Stun(1);
     return nullptr;
 }
@@ -41,21 +42,21 @@ Chaaaaaarge::Chaaaaaarge() : Skill() {
     _name = "Chaaaaaarge !!!";
 };
 
-TempModifier* Chaaaaaarge::Trigger(Fighter& target) {
-    Skill::Trigger(target);
+TempModifier* Chaaaaaarge::Cast(Fighter& target) {
+    Skill::Cast(target);
 
     // miss ?
     int random = rand() % 100;
     if (_accuracy <= random) {
-        string s = "\t" + target._name + " miserably miss his charge...\n";
-        cout << s;
+        LOG("\t" + target._name + " miserably miss his charge...");
         return nullptr;
     }
 
     // damages doubled for 1 turn !
-    string s = target._name + " chaaaaaarges !!!!\n";
-    cout << s;
-    DamageModifier* pDM = new DamageModifier(target, 1, target._weapon._damages);
+    LOG("\t" + target._name + " chaaaaaarges !!!!");
+
+    int bonusDamages = target._weapon._damages;
+    DamageModifier* pDM = new DamageModifier(target, 1, bonusDamages);
     return pDM;
 }
 
@@ -68,7 +69,7 @@ Skill::Skill()
     _accuracy = 50;
 };
 
-TempModifier* Skill::Trigger(Fighter& target)
+TempModifier* Skill::Cast(Fighter& target)
 {
     _timer = _cooldown;
     return nullptr;

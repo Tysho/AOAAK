@@ -141,11 +141,13 @@
   <ItemGroup>
     <ClCompile Include="AnOrcAndAKnight.cpp" />
     <ClCompile Include="Fighter.cpp" />
+    <ClCompile Include="Battle.cpp" />
     <ClCompile Include="Skill.cpp" />
     <ClCompile Include="TempModifier.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fighter.h" />
+    <ClInclude Include="Battle.h" />
     <ClInclude Include="Skill.h" />
     <ClInclude Include="TempModifier.h" />
   </ItemGroup>

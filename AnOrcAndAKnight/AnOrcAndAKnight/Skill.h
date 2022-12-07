@@ -29,7 +29,7 @@ protected:
 	int _accuracy;		// percentage (0 = never hit to 100 = always hit)
 
 public:
-	virtual TempModifier* Trigger(Fighter& target);
+	virtual TempModifier* Cast(Fighter& target);
 	void EndTurn();
 };
 
@@ -39,7 +39,7 @@ public:
 	virtual ~Stun() {};
 
 public:
-	virtual TempModifier* Trigger(Fighter& target);
+	virtual TempModifier* Cast(Fighter& target);
 };
 
 class Chaaaaaarge : public Skill {
@@ -48,5 +48,5 @@ public:
 	virtual ~Chaaaaaarge() {};
 
 public:
-	virtual TempModifier* Trigger(Fighter& target) final;
+	virtual TempModifier* Cast(Fighter& target) final;
 };

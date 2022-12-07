@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 
+#define LOG(str) cout << "\n\t"; cout << str;
+
 using namespace std;
 
 #define _SHIELD _stats._currentShield
@@ -13,31 +15,25 @@ using namespace std;
 unsigned int Fighter::GetDamages()
 {
     if (_stun > 0) {
-        string s = _name + " is stunned this turn !(" + to_string(_stun) + " turn(s) left)\n";
-        cout << s;
         return 0;
     }
     return _weapon._damages;
 }
 
-Stats Fighter::InflictDamages(int damages)
+Stats Fighter::RecieveDamages(int damages)
 {
     // no damages ? then nothing
     if (damages == 0)
         return _stats;
-
-    string s;
-
+    
     // shield ? -> damages to shield
     if (_SHIELD > 0) {
         _SHIELD -= damages;
-        s = _name + " blocked the hit with his shield !";
-        cout << s;
+        string text = "\t" + _name + " blocked the hit with his shield !";
 
         // shield still ok
         if (_SHIELD > 0) {
-            s = "\n\t(shield left : " + to_string(_SHIELD) + "/" + to_string(_stats._maxShield) + ")\n";
-            cout << s;
+            text += "\t(shield left : " + to_string(_SHIELD) + "/" + to_string(_stats._maxShield) + ")";
             return _stats;
         }
 
@@ -45,17 +41,17 @@ Stats Fighter::InflictDamages(int damages)
         else {
             damages = -_SHIELD;
             _SHIELD = 0;
-            s = "\n\tthe shield of " + _name + " just explode ! No more shield :(\n";
-            cout << s;
+            text += "\n\t\tThe shield of " + _name + " just explode ! No more shield :(";
         }
+
+        LOG(text);
     }
 
     // no(more) shield -> damage to HP
     _HP -= damages;
     _HP = max(0, _HP);
-
-    s = _name + " recieved " + to_string(damages) + " damages !!! (" + to_string(_HP) + "/" + to_string(_stats._maxHP) + ")\n";
-    cout << s;
+  
+    LOG("\t" + _name + " recieved " + to_string(damages) + " damages !!!\t(" + to_string(_HP) + "/" + to_string(_stats._maxHP) + ")");
 
     return _stats;
 }
@@ -93,4 +89,20 @@ void Fighter::AddSkill(Skill* pSkill)
 {
     if (pSkill != nullptr)
         _listSkills.push_back(pSkill);
+}
+
+bool Fighter::IsDead()
+{
+    if (_stats._currentHP <= 0)
+        return true;
+    return false;
+}
+
+bool Fighter::IsStunned() 
+{
+    if (_stun > 0) {
+        cout << _name + " is stunned this turn !(" + to_string(_stun) + " turn(s) left)\n";
+        return true;
+    }
+    return false;
 }
