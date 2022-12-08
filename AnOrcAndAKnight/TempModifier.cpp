@@ -1,5 +1,6 @@
 #include "TempModifier.h"
-#include "Fighter.h"
+#include "Hero.h"
+#include "ResourcesManager.h"
 
 #include <iostream>
 
@@ -19,7 +20,7 @@ short TempModifier::Update()
 string DamageModifier::Affect()
 {
 	_target._weapon._damages += _value;
-	string s = "\t" + _target._name + " recieved " + to_string(_value) + " bonus damages for " + to_string(_duration) + " turn(s) !!\n";
+	string s = "\t" + Format(GetT("BONUS_DAMAGES"), _target._name.c_str(), _value, _duration);
 	return s;
 }
 

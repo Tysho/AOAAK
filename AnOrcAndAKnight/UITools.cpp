@@ -1,9 +1,38 @@
 #include "UITools.h"
-#include "Fighter.h"
-
+#include "Hero.h"
+#include "ResourcesManager.h"
 #include <iostream>
 
 #define SCREEN_WIDTH 111
+
+#pragma region Inline fct tools
+
+inline void CleanScreen() { system("cls"); };
+
+inline bool IsNumber(const string& s)
+{
+	std::string::const_iterator it = s.begin();
+	while (it != s.end() && std::isdigit(*it)) ++it;
+	return !s.empty() && it == s.end();
+};
+
+inline string ReadText() {
+	string s; 
+	do { 
+		getline(cin, s); 
+	} while (s == ""); 
+	return s; 
+};
+
+inline int ReadNumber() { 
+	string s; 
+	do { 
+		getline(cin, s); 
+	} while (s == "" || !IsNumber(s));
+	return atoi(s.c_str()); 
+};
+
+#pragma endregion
 
 int UITools::_currentTurn = -1;
 string UITools::_summary;
@@ -15,23 +44,21 @@ static string AddEmtpyLine() {
 	string display = "\t";
 	for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
 		if (i == (SCREEN_WIDTH - 5) / 2) { // -5 > -4 for left margin and -1 for separator
-			display = "|";
+			display += "|";
 			i++;
 		}
-		display = " ";
+		display += " ";
 	}
-	display = "\n\t";
+	display += "\n\t";
 	
 	return display;
 }
 
 /// <summary>
-/// Draw life or shield bar for both Fighters, return string which will be displayed
+/// Draw life or shield bar for both Heroes stats
 /// </summary>
-/// <param name="isHp">true > HP / false > shield </param>
-/// <param name="left"></param>
-/// <param name="right"></param>
-/// <returns></returns>
+/// <param name="isHp"> : true=HP, false=shield </param>
+/// <returns>string containing the draw to display in cout</returns>
 string DrawBar(bool isHp, const Stats& left, const Stats& right) 
 {
 	string result;
@@ -47,7 +74,7 @@ string DrawBar(bool isHp, const Stats& left, const Stats& right)
 	if (isHp == false && leftMax + rightMax == 0)
 		return "";
 
-	// left bar (if shield bar for no shield fighter, don't display)
+	// left bar (if shield bar for no shield Hero, don't display)
 	if (isHp || leftMax > 0) {
 		int hpPlain = leftCur * barreWidth / leftMax;
 		for (int i = 0; i < hpPlain; i++)
@@ -63,7 +90,7 @@ string DrawBar(bool isHp, const Stats& left, const Stats& right)
 	// separator
 	result += "          |          ";
 
-	// right bar (if shield bar for no shield fighter, don't display)
+	// right bar (if shield bar for no shield Hero, don't display)
 
 	if (isHp || rightMax > 0) {
 		int hpPlain = rightCur * barreWidth / rightMax;
@@ -78,9 +105,14 @@ string DrawBar(bool isHp, const Stats& left, const Stats& right)
 }
 
 
+/// <summary>
+/// Get a line which display curValue / maxValue for both Heroes stats
+/// </summary>
+/// <param name="isHp"> : true=HP, false=shield </param>
+/// <returns>string containing the values to display in cout</returns>
 string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 {
-	string dataType = isHp ? "HP : " : "Shield : ";
+	string dataType = isHp ? GetT("LIFE_POINT") : GetT("SHIELD");
 	int leftCur = isHp ? left._currentHP : left._currentShield;
 	int leftMax = isHp ? left._maxHP : left._maxShield;
 	int rightCur = isHp ? right._currentHP : right._currentShield;
@@ -119,16 +151,17 @@ void UITools::LogHeader(const string& text)
 	_header += "\n\t" + text;
 }
 
-string UITools::DrawStats(const Fighter& left, const Fighter& right)
+string UITools::DrawStats(const Hero& left, const Hero& right)
 {
 	string display = "\n\t";
 
-	// names of the fighters
+	// names of the Heroes
 	display += left._name;
 
-	int separatorLength = int(SCREEN_WIDTH - left._name.size() - right._name.size() - 4); // - 4 for left margin
-	for (int i = 0; i < separatorLength; i++) {
-		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 > -1 for separator and -4 for left margin
+	int begin = (int)left._name.size(); 
+	int end = SCREEN_WIDTH - (int)right._name.size() - 4; // 4 because of first tab
+	for (int i = begin; i < end; i++) {
+		if (i == (SCREEN_WIDTH - 5) /2) {
 			display += "|";
 			i++;
 		}
@@ -158,9 +191,9 @@ string UITools::DrawStats(const Fighter& left, const Fighter& right)
 	return display;
 }
 
-void UITools::DrawTurn(const Fighter& left, const Fighter& right) 
+void UITools::DrawTurn(const Hero& left, const Hero& right) 
 {
-	system("cls");   // Clear output for next display
+	CleanScreen();
 
 	// save header
 	string screen = _header;
@@ -179,91 +212,76 @@ void UITools::DrawTurn(const Fighter& left, const Fighter& right)
 	// display everything on console
 	cout << screen;
 
-	_currentTurn = _history.size() - 1;
+	_currentTurn = int(_history.size() - 1);
 }
 
+// display next turn ONLY if it was already generated
 bool UITools::DisplayNextTurn() 
 {
 	if (_currentTurn >= _history.size() - 1)
 		return false;
 
-	system("cls");   // Clear output for next display
+	CleanScreen();
 
 	_currentTurn++;
 	cout << _history[_currentTurn];
 	return true;
 }
 
+// display previous turn if not already on the first one
 void UITools::DisplayPreviousTurn(bool forceLastTurn) 
 {
 	if (_history.size() == 0)
 		return;
-
 	if (_currentTurn == 0)
 		return;
 
-	system("cls");   // Clear output for next display
+	CleanScreen();
 
+	// came from scoreboard ? display last
 	if (forceLastTurn)
-		_currentTurn = _history.size() - 1;
+		_currentTurn = int(_history.size() - 1);
+	
+	// display previous
 	else 
 		_currentTurn--;
+
 	cout << _history[_currentTurn];
 }
 
-void UITools::LaunchEditForm(Fighter& knight, Fighter& orc)
+// Generate a form in the cout to collect caracteristics for both Heroes from user
+void UITools::LaunchEditForm(Hero& knight, Hero& orc)
 {
-	cout << "Name of the Knight : ";
+	CleanScreen();
+	//cout << "Name of the Knight : ";
 	string custom;
 	getline(cin, custom);
-	knight._name = custom;
+	knight._name = ReadText();
 
 	cout << "\"" + knight._name + "\" HP (enter a number) : ";
-	do {
-		getline(cin, custom);
-	} while (false); // is not a number
-	knight._stats._currentHP = knight._stats._maxHP = atoi(custom.c_str());
+	knight._stats._currentHP = knight._stats._maxHP = ReadNumber();
 
-	cout << "\"" + knight._name + "\" Shield value (enter a number) : ";
-	do {
-		getline(cin, custom);
-	} while (false); // is not a number
-	knight._stats._currentShield = knight._stats._maxShield = atoi(custom.c_str());
+	cout << "\"" + knight._name + "\" Shield value (enter a number) : ";	
+	knight._stats._currentShield = knight._stats._maxShield = ReadNumber();
 
 	cout << "\"" + knight._name + "\" weapon's name : ";
-	getline(cin, custom);
-	knight._weapon._name = custom;
+	knight._weapon._name = ReadText();
 
 	cout << "damage inflicted by \"" + knight._weapon._name + "\" : (enter a number) : ";
-	do {
-		getline(cin, custom);
-	} while (false); // is not a number
-	knight._weapon._damages = atoi(custom.c_str());
+	knight._weapon._damages = ReadNumber();
 
 	cout << "Name of the Orc : ";
-	getline(cin, custom);
-	orc._name = custom;
+	orc._name = ReadText();
 
-	cout << "\"" + orc._name + "\" HP (enter a number) : ";
-	do {
-		getline(cin, custom);
-	} while (false); // is not a number
-	orc._stats._currentHP = orc._stats._maxHP = atoi(custom.c_str());
+	cout << "\"" + orc._name + "\" HP (enter a number) : ";	
+	orc._stats._currentHP = orc._stats._maxHP = ReadNumber();
 
 	cout << "\"" + orc._name + "\" Shield value (enter a number) : ";
-	do {
-		getline(cin, custom);
-	} while (false); // is not a number
-	orc._stats._maxShield = atoi(custom.c_str());
-	orc._stats._currentShield = orc._stats._maxShield;
+	orc._stats._currentShield = orc._stats._maxShield = ReadNumber();
 
 	cout << "\"" + orc._name + "\" weapon's name : ";
-	getline(cin, custom);
-	orc._weapon._name = custom;
+	orc._weapon._name = ReadText();
 
 	cout << "damage inflicted by \"" + orc._weapon._name + "\" : (enter a number) : ";
-	do {
-		getline(cin, custom);
-	} while (false); // is not a number
-	orc._weapon._damages = atoi(custom.c_str());
+	orc._weapon._damages = ReadNumber();
 }

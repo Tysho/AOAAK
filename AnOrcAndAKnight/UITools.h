@@ -5,7 +5,7 @@
 
 using namespace std;
 
-class Fighter;
+class Hero;
 
 class UITools
 {
@@ -18,11 +18,11 @@ public:
 public:
 	static bool DisplayNextTurn();
 	static void DisplayPreviousTurn(bool forceLastTurn = false); 
-	static void DrawTurn(const Fighter& left, const Fighter& right);
-	static void LaunchEditForm(Fighter& knight, Fighter& orc);
+	static void DrawTurn(const Hero& left, const Hero& right);
+	static void LaunchEditForm(Hero& knight, Hero& orc);
 	static void LogSummary(const string& text);
 	static void LogHeader(const string& text);
 private:
-	static string DrawStats(const Fighter& left, const Fighter& right);
+	static string DrawStats(const Hero& left, const Hero& right);
 };
 

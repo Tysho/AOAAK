@@ -1,20 +1,22 @@
 #include "Battle.h"
 
-#include "Fighter.h"
+#include "Hero.h"
 #include "Skill.h"
 #include "TempModifier.h"
-#include "UITools.h" 
+#include "UITools.h"
+#include "ResourcesManager.h"
+
 #include <iostream>
 
-#define LOG(str) cout << "\n\t"; cout << str;
+#define LOG(str) cout << "\n\t"; cout << (str);
 
-Battle::Battle(Fighter& knight, Fighter& orc) : _knight(knight), _orc(orc)
+Battle::Battle(Hero& knight, Hero& orc) : _knight(knight), _orc(orc)
 {
     InitBattle();
 }
 
 
-TempModifier* Battle::TriggerEffect(Skill* pSkill, Fighter& target)
+TempModifier* Battle::TriggerEffect(Skill* pSkill, Hero& target)
 {
     TempModifier* pTM = pSkill->Cast(target);
 
@@ -30,7 +32,7 @@ TempModifier* Battle::TriggerEffect(Skill* pSkill, Fighter& target)
 /// Fight !!!
 void Battle::InitBattle()
 {
-    LOG("FIIIGHT !!!\n");
+    cout<<"\n\t\t" + (ResourcesManager::GetText("BATTLE_BEGIN"));
     _turn = 1;
 }
 
@@ -39,9 +41,9 @@ void Battle::LogTurnCount()
     string strTurn = to_string(_turn);
     if (_turn < 10)
         strTurn = "0" + strTurn;
-
-    strTurn = "\t------------------------\n\t\t------- TURN " + strTurn + " --------\n\t\t------------------------\n";
-    UITools::LogHeader(strTurn);
+    
+    string log = Format(GetT("TURN_COUNTER"), strTurn.c_str());
+    UITools::LogHeader(log);
 }
 
 /// <summary>
@@ -61,14 +63,14 @@ void Battle::PlayTurn()
     if (listOrcSkills.size() + list_knightSkills.size() > 0)
     {
         // don't remove brackets because two lines in "LOG"
-        string log = ">-  SKILL PHASE\n";
+        string log = GetT("SKILL_PHASE");
         UITools::LogSummary(log);
     }
 
     // orc skills
     for (int i = 0; i < listOrcSkills.size(); i++) {
         Skill* pSkill = listOrcSkills[i];
-        string log = _orc._name + " uses his skill \"" + pSkill->_name + "\"";
+        string log = Format(GetT("USES_SKILL"), _orc._name.c_str(), pSkill->_name.c_str());
         UITools::LogSummary(log);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
@@ -84,7 +86,7 @@ void Battle::PlayTurn()
     for (int i = 0; i < list_knightSkills.size(); i++) {
         Skill* pSkill = list_knightSkills[i];
 
-        string log = _knight._name + " use his skill \"" + pSkill->_name + "\"";
+        string log = Format(GetT("USES_SKILL"), _knight._name.c_str(), pSkill->_name.c_str());
         UITools::LogSummary(log);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
@@ -96,23 +98,23 @@ void Battle::PlayTurn()
         summary += "\n";
     }
 
-    string log = ">-  BATTLE PHASE\n";
+    string log = GetT("BATTLE_PHASE");
     UITools::LogSummary(log);
 
     // knight attacks
     if (_knight.IsStunned(summary) == false) {
-        string log = _knight._name + " attacks \"" + _orc._name + "\" with his " + _knight._weapon._name + "!";
+        string log = Format(GetT("ATTACK"), _knight._name.c_str(), _orc._name.c_str(), _knight._weapon._name.c_str());
         UITools::LogSummary(log);
         _orc.RecieveDamages(_knight.GetDamages());
+        UITools::LogSummary("");
     }
-
-    cout << "\n";
 
     // orc attacks
     if (_orc.IsStunned(summary) == false) {
-        string log = _orc._name + " attacks \"" + _knight._name + "\" with his " + _orc._weapon._name + "!";
+        string log = Format(GetT("ATTACK"), _orc._name.c_str(), _knight._name.c_str(), _orc._weapon._name.c_str());
         UITools::LogSummary(log);
         _knight.RecieveDamages(_orc.GetDamages());
+        UITools::LogSummary("");
     }
 
     // then, effects update
@@ -149,12 +151,12 @@ bool Battle::IsOver()
 void Battle::DisplayScore() {
 
     if (_knight._stats._currentHP == 0) {
-        LOG(_knight._name + ", sadly, didn't survive another day...\n");
+        LOG(_knight._gameOver);
     }
 
     if (_orc._stats._currentHP == 0) {
-        LOG(_orc._name + ", won't kiss his familly tonight...\n");
+        LOG(_orc._gameOver);
     }
 
-    LOG("THE END\n\n");
+    LOG("\n\n\t\t" + GetT("END"));
 }

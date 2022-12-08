@@ -1,0 +1,7 @@
+Class;Knight;Orc
+Name;Lord Belmesh;Gromek
+HP;20;60
+Shield;50;0
+Weapon_name;Holy Sword;Dab'ighaks
+Weapon_damages;5;8
+Lose_message;Sadly, Lord Belmesh won't see another day…;Gromek won't kiss his chubby green childs tonight…

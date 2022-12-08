@@ -1,29 +1,29 @@
 #pragma once
-#include "Fighter.h"
+#include "Hero.h"
 #include "Skill.h"
 #include "TempModifier.h"
 
 #include <iostream>
 
-class Fighter;
+class Hero;
 
 class Battle
 {
 public:
-	Battle(Fighter& knight, Fighter& orc); 
+	Battle(Hero& knight, Hero& orc); 
 	~Battle() {};
 
 private:
 	int _turn = 0;
-	Fighter& _knight;
-	Fighter& _orc;
+	Hero& _knight;
+	Hero& _orc;
 
 	vector<TempModifier*> _listModifiers;
 public:
 	void DisplayScore();
 	bool IsOver();
 	void PlayTurn();
-	TempModifier* TriggerEffect(Skill* pSkill, Fighter& target);
+	TempModifier* TriggerEffect(Skill* pSkill, Hero& target);
 
 private:
 	void InitBattle();

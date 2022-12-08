@@ -1,8 +1,8 @@
-#include "Fighter.h"
+#include "Hero.h"
 
 #include "Skill.h"
 #include "UITools.h"
-
+#include "ResourcesManager.h"
 #include <string>
 #include <iostream>
 
@@ -13,7 +13,7 @@ using namespace std;
 #define _SHIELD _stats._currentShield
 #define _HP _stats._currentHP
 
-unsigned int Fighter::GetDamages()
+unsigned int Hero::GetDamages()
 {
     if (_stun > 0) {
         return 0;
@@ -21,7 +21,7 @@ unsigned int Fighter::GetDamages()
     return _weapon._damages;
 }
 
-Stats Fighter::RecieveDamages(int damages)
+Stats Hero::RecieveDamages(int damages)
 {
     // no damages ? then nothing
     if (damages == 0)
@@ -30,11 +30,10 @@ Stats Fighter::RecieveDamages(int damages)
     // shield ? -> damages to shield
     if (_SHIELD > 0) {
         _SHIELD -= damages;
-        string text = "\t" + _name + " blocked the hit with his shield !";
+        string text = Format(GetT("SHIELD_BLOCK"), _name.c_str());
 
         // shield still ok
         if (_SHIELD > 0) {
-            text += "\t(shield left : " + to_string(_SHIELD) + "/" + to_string(_stats._maxShield) + ")";
             UITools::LogSummary(text);
             return _stats;
         }
@@ -42,7 +41,7 @@ Stats Fighter::RecieveDamages(int damages)
         // shield destroyed, remainent damages will be inflicted to HP
         damages = -_SHIELD;
         _SHIELD = 0;
-        text += "\n\t\tThe shield of " + _name + " just explode ! No more shield :(";
+        text += "\n\t\t\t" + Format(GetT("SHIELD_DESTROYED"), _name.c_str());
         UITools::LogSummary(text);
     }
 
@@ -50,13 +49,14 @@ Stats Fighter::RecieveDamages(int damages)
     _HP -= damages;
     _HP = max(0, _HP);
   
-    string log = "\t" + _name + " recieved " + to_string(damages) + " damages !!!\t(" + to_string(_HP) + "/" + to_string(_stats._maxHP) + ")";
+    string format = GetT("TAKES_DAMAGES");
+    string log = Format(format, _name.c_str(), damages);
     UITools::LogSummary(log);
 
     return _stats;
 }
 
-vector<Skill*> Fighter::GetAvailableSkillsThisTurn()
+vector<Skill*> Hero::GetAvailableSkillsThisTurn()
 {
     vector<Skill*> ret;
 
@@ -70,7 +70,7 @@ vector<Skill*> Fighter::GetAvailableSkillsThisTurn()
     return ret;
 }
 
-void Fighter::EndTurn()
+void Hero::EndTurn()
 {
     _stun--;
     for (int i = 0; i < _listSkills.size(); i++) {
@@ -79,29 +79,29 @@ void Fighter::EndTurn()
     }
 }
 
-void Fighter::Stun(int duration)
+void Hero::Stun(int duration)
 {
     if (_stun < duration)
         _stun = duration;
 }
 
-void Fighter::AddSkill(Skill* pSkill)
+void Hero::AddSkill(Skill* pSkill)
 {
     if (pSkill != nullptr)
         _listSkills.push_back(pSkill);
 }
 
-bool Fighter::IsDead()
+bool Hero::IsDead()
 {
     if (_stats._currentHP <= 0)
         return true;
     return false;
 }
 
-bool Fighter::IsStunned(string& summary) 
+bool Hero::IsStunned(string& summary) 
 {
     if (_stun > 0) {
-        summary += "\n\t" + _name + " is stunned this turn !(" + to_string(_stun) + " turn(s) left)";
+        summary += "\n\t" + Format(GetT("STUNNED_THIS_TURN"), _name, _stun);
         return true;
     }
     return false;

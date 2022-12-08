@@ -10,7 +10,7 @@ enum class TypeTarget {
 	both
 };
 
-class Fighter;
+class Hero;
 class TempModifier;
 
 // skill the figter can use
@@ -29,7 +29,7 @@ protected:
 	short _cooldown;	// delay between 2 casts
 
 public:
-	virtual TempModifier* Cast(Fighter& target);
+	virtual TempModifier* Cast(Hero& target);
 	void EndTurn();
 };
 
@@ -39,7 +39,7 @@ public:
 	virtual ~Stun() {};
 
 public:
-	virtual TempModifier* Cast(Fighter& target) final;
+	virtual TempModifier* Cast(Hero& target) final;
 };
 
 class Chaaaaaarge : public Skill {
@@ -48,5 +48,5 @@ public:
 	virtual ~Chaaaaaarge() {};
 
 public:
-	virtual TempModifier* Cast(Fighter& target) final;
+	virtual TempModifier* Cast(Hero& target) final;
 };

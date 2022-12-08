@@ -140,19 +140,32 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnOrcAndAKnight.cpp" />
-    <ClCompile Include="Fighter.cpp" />
+    <ClCompile Include="Hero.cpp" />
     <ClCompile Include="Battle.cpp" />
+    <ClCompile Include="ResourcesManager.cpp" />
     <ClCompile Include="Skill.cpp" />
     <ClCompile Include="TempModifier.cpp" />
     <ClCompile Include="UITools.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AnOrcAndAKnight.h" />
-    <ClInclude Include="Fighter.h" />
+    <ClInclude Include="Hero.h" />
     <ClInclude Include="Battle.h" />
+    <ClInclude Include="ResourcesManager.h" />
     <ClInclude Include="Skill.h" />
     <ClInclude Include="TempModifier.h" />
     <ClInclude Include="UITools.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Settings\Heroes.csv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Settings\Language.csv">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

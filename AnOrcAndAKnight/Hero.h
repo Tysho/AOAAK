@@ -33,22 +33,24 @@ public:
 };
 
 
-class Fighter
+class Hero
 {
 	// cons/destructor
 public:
-	Fighter(const string& name, const Weapon& weapon, const Stats& stats) {
+	Hero(const string& name, const Weapon& weapon, const Stats& stats) {
 		_name = name;
 		_weapon = weapon;
 		_stats = stats;
+		_gameOver = "R.I.P " + name;
 	};
-	~Fighter() {};
+	~Hero() {};
 	
 	// attributes
 public:
 	Weapon _weapon;
 	string _name;
-	Stats _stats;				// hp&shield, current and max
+	string _gameOver;
+	Stats _stats;				// hp&shield, current and max values
 
 private:
 	int _stun = 0;				// stunned turns left
@@ -69,6 +71,6 @@ public:
 };
 
 // ordre du tour : 
-//		1- on demande pour chaque fighter s'il a des skills dispo.
+//		1- on demande pour chaque Hero s'il a des skills dispo.
 //		2- on utilise les compétences de chacun
 //		3- on 

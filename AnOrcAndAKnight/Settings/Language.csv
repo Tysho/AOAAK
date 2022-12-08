@@ -1,0 +1,25 @@
+LANGUAGE;Français;English
+SELECT_CHAR_CLASS;\tSélectionnez la classe du héros : ;\tSelect the class of the hero : 
+ENTER_CHAR_NAME;\tEntrer le nom du héros: \tEnter the name of the hero : 
+ENTER_CHAR_HP;\tPoints de Vie de "%s" (entrer un nombre) : ;\t"%s" Health Points (enter a number) : 
+ENTER_CHAR_SHIELD;\tPoints de Bouclier de "%s" (entrer un nombre) : ;\t"%s" Shield Points (enter a number) : 
+ENTER_CHAR_WEAPON_NAME;\tEntrer le nom de l'arme de "%s" : ;\tEnter the name of the weapon of "%s" : 
+ENTER_CHAR_WEAPON_DAMAGES;\tPoints de Dégats de "%s" (entrer un nombre) : ;\t"%s" Damages Points (enter a number) : 
+TURN_COUNTER;\t------------------------\n\t\t------- TOUR %s --------\n\t\t------------------------\n;\t\t------------------------\n\t\t------- TURN %s --------\n\t\t------------------------\n
+CUSTOMIZE_HEROES_YN;\tVoulez vous personnaliser les héros qui vont s'affronter ?\n\t\t(appuyer sur "y" pour "oui" ou "n" pour "non");\tDo you want to customize the Heroes ? (y or n) :
+BATTLE_BEGIN;Que le combat commence !!!;FIGHT !!!
+SHIELD;Bouclier : ; Shield : 
+LIFE_POINT;PV : ;HP : 
+SKILL_PHASE;\n\t>-   Phase de compétences\n;\n\t>-   Skill Phase\n
+BATTLE_PHASE;\n\t>-   Phase de combat\n;\n\t>-   Battle Phase\n
+ATTACK;%s attaque %s avec son arme "%s" !;%s attacks %s with his %s !
+SHIELD_BLOCK;\t%s bloque adroitement le coup avec son bouclier !;\t%s skillfully blocked the hit with his shield !"
+SHIELD_DESTROYED;Le bouclier de %s vole en éclat ! ça lui fait une belle jambe...;The shield of %s explodes ! No more shield :(
+TAKES_DAMAGES;\t%s subit %d damages !!!;\t%s recieved %d damages !!!
+STUNNED_THIS_TURN;%s est sonné pour ce tour et ne peux pas attaquer ! (%d tour(s) restant(s);%s is stunned this turn !(%d turn(s) left)"
+USES_SKILL;%s utilise sa compétence "%s";%s uses his skill "%s"
+STUNNED;%s est assomé par la violence du coup !;%s got stunned !"
+BONUS_DAMAGES;%s reçoit %d dégat(s) bonus pour %d tour(s) !!;%s recieved %d bonus damages for %d turn(s) !!"
+MISS_STUN;%s évite le terrible coup de son adversaire !;%s avoid the blow of his opponent weapon !"
+MISS_CHARGE;%s rate lamentablement sa charge...;%s miserably miss his charge..."
+END;FIN;The end

@@ -1,10 +1,11 @@
 // AnOrcAndAKnight.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
 //
 
-#include "Fighter.h"
+#include "Hero.h"
 #include "Battle.h"
 #include "Skill.h"
 #include "UITools.h"
+#include "ResourcesManager.h"
 
 #include <conio.h>
 #include <iostream>
@@ -16,35 +17,41 @@ int main()
     // init random number generation seed with current time, so the fights won't end the same every time
     srand((unsigned int)time(0));
 
+    // get languages resources
+    vector<string>&& listLang = ResourcesManager::GetAvailableLanguages();
+    ResourcesManager::LoadLanguage(listLang[0]);
+
     // create a knight
-    Fighter knight("Lord Belmesh", Weapon("long sword", 5), Stats(20, 50));
+    Hero knight("Lord Belmesh", Weapon("long sword", 5), Stats(20, 50));
     Chaaaaaarge knightCharge;
     knight.AddSkill(&knightCharge);
 
     // create an orc to fight against
-    Fighter orc("Gromek", Weapon("axe", 8), Stats(60, 0));
+    Hero orc("Gromek", Weapon("axe", 8), Stats(60, 0));
     Stun orcStun;
     orc.AddSkill(&orcStun);
 
-    // pour plus tard
+    // Allow user to edit his heroes
     int key = -1;
-    cout << "do you want to customize the fighters ? (y or n)";
+    cout << GetT("CUSTOMIZE_HEROES_YN");
     do {
         key = _getch();
         if (key == 224)
             key += _getch();
 
-        // yes => display form to edit Fighters
-        if (key == 121) {
+        // yes => display form to edit Heroes
+        if (key == 121)
             UITools::LaunchEditForm(knight, orc);
-        }
+
     } while (key != 121 && key != 110);
 
-   
+
+    system("cls");
+
     // begin battle
     Battle battle(knight, orc);
 
-    // list of all modifier currently applying on both fighters
+    // list of all modifier currently applying on both Heroes
     while (1) {
         int key = _getch();
 
@@ -95,7 +102,7 @@ int main()
 
     }
 
-    _getch();
+    int a=_getch();
     system("cls");
     return 1;
 }
