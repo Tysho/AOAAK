@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Hero.h"
 #include "Skill.h"
 #include "TempModifier.h"
@@ -6,6 +7,7 @@
 #include <iostream>
 
 class Hero;
+class UIManager;
 
 class Battle
 {
@@ -15,18 +17,17 @@ public:
 
 private:
 	int _turn = 0;
-	Hero& _knight;
-	Hero& _orc;
-
+	Hero& _hero1;
+	Hero& _hero2;
 	vector<TempModifier*> _listModifiers;
+
 public:
 	void DisplayScore();
 	bool IsOver();
 	void PlayTurn();
-	TempModifier* TriggerEffect(Skill* pSkill, Hero& target);
 
 private:
 	void InitBattle();
-	void LogTurnCount();
+	TempModifier* TriggerEffect(Skill* pSkill, Hero& target);
 };
 

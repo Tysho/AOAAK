@@ -33,7 +33,7 @@
     <ClCompile Include="Battle.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="UITools.cpp">
+    <ClCompile Include="UIManager.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="ResourcesManager.cpp">
@@ -53,7 +53,7 @@
     <ClInclude Include="Battle.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="UITools.h">
+    <ClInclude Include="UIManager.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="ResourcesManager.h">

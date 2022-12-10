@@ -31,6 +31,7 @@ protected:
 public:
 	virtual TempModifier* Cast(Hero& target);
 	void EndTurn();
+	const char* GetName() { return _name.c_str(); };
 };
 
 class Stun : public Skill {

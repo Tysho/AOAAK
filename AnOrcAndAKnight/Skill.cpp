@@ -2,11 +2,8 @@
 
 #include "Hero.h"
 #include "TempModifier.h"
-#include "UITools.h"
+#include "UIManager.h"
 #include "ResourcesManager.h"
-
-#include <string>
-#include <iostream>
 
 #define LOG(str) cout << "\n\t"; cout << str;
 
@@ -27,13 +24,13 @@ TempModifier* Stun::Cast(Hero& target)
     int random = rand() % 100;
     if (_accuracy <= random) {
         string log = "\t" + Format(GetT("MISS_STUN"), target._name.c_str());
-        UITools::LogSummary(log);
+        UIManager::GetInstance().LogSummary(log);
         return nullptr;
     }
 
     // hit !
     string log = "\t" + Format(GetT("STUNNED"), target._name.c_str());
-    UITools::LogSummary(log);
+    UIManager::GetInstance().LogSummary(log);
     target.Stun(1);
     return nullptr;
 }
@@ -53,14 +50,14 @@ TempModifier* Chaaaaaarge::Cast(Hero& target) {
     int random = rand() % 100;
     if (_accuracy <= random) {
         string log = "\t" + Format(GetT("MISS_CHARGE"), target._name.c_str());
-        UITools::LogSummary(log);
+        UIManager::GetInstance().LogSummary(log);
         return nullptr;
     }
 
     // damages doubled for 1 turn !
     int bonusDamages = target._weapon._damages;
 
-    DamageModifier* pDM = new DamageModifier(target, 1, bonusDamages);
+    DamageModifier* pDM = new DamageModifier(_name, target, 1, bonusDamages);
     return pDM;
 }
 

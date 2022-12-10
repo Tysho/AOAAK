@@ -3,19 +3,15 @@
 #include "Hero.h"
 #include "Skill.h"
 #include "TempModifier.h"
-#include "UITools.h"
+#include "UIManager.h"
 #include "ResourcesManager.h"
 
-#include <iostream>
-
-#define LOG(str) cout << "\n\t"; cout << (str);
-
-Battle::Battle(Hero& knight, Hero& orc) : _knight(knight), _orc(orc)
+Battle::Battle(Hero& hero1, Hero& hero2) : _hero1(hero1), _hero2(hero2)
 {
-    InitBattle();
+    InitBattle(); 
 }
 
-
+// trigger an effect of a skill to a target, log in summary what is happening and return the temporary modifier if any
 TempModifier* Battle::TriggerEffect(Skill* pSkill, Hero& target)
 {
     TempModifier* pTM = pSkill->Cast(target);
@@ -25,26 +21,17 @@ TempModifier* Battle::TriggerEffect(Skill* pSkill, Hero& target)
 
     _listModifiers.push_back(pTM);
     string log = pTM->Affect();
-    UITools::LogSummary(log);
+    UIManager::GetInstance().LogSummary(log);
     return pTM;
 }
 
 /// Fight !!!
 void Battle::InitBattle()
 {
-    cout<<"\n\t\t" + (ResourcesManager::GetText("BATTLE_BEGIN"));
+    UIManager::GetInstance().DisplayBattleStart(_hero1, _hero2);
     _turn = 1;
 }
 
-void Battle::LogTurnCount()
-{
-    string strTurn = to_string(_turn);
-    if (_turn < 10)
-        strTurn = "0" + strTurn;
-    
-    string log = Format(GetT("TURN_COUNTER"), strTurn.c_str());
-    UITools::LogHeader(log);
-}
 
 /// <summary>
 /// Play a turn and return the summary as string
@@ -52,69 +39,70 @@ void Battle::LogTurnCount()
 /// <returns></returns>
 void Battle::PlayTurn()
 { 
-    LogTurnCount();
-
-    string summary;
-
     // get lists of available skills
-    vector<Skill*>&& listOrcSkills = _orc.GetAvailableSkillsThisTurn();
-    vector<Skill*>&& list_knightSkills = _knight.GetAvailableSkillsThisTurn();
+    vector<Skill*>&& listSkills1 = _hero1.GetAvailableSkillsThisTurn();
+    vector<Skill*>&& listSkills2 = _hero2.GetAvailableSkillsThisTurn();
 
-    if (listOrcSkills.size() + list_knightSkills.size() > 0)
+    if (listSkills1.size() + listSkills2.size() > 0)
     {
         // don't remove brackets because two lines in "LOG"
         string log = GetT("SKILL_PHASE");
-        UITools::LogSummary(log);
+        UIManager::GetInstance().LogSummary(log);
     }
 
     // orc skills
-    for (int i = 0; i < listOrcSkills.size(); i++) {
-        Skill* pSkill = listOrcSkills[i];
-        string log = Format(GetT("USES_SKILL"), _orc._name.c_str(), pSkill->_name.c_str());
-        UITools::LogSummary(log);
+    for (Skill* pSkill : listSkills1) {
+
+        string log = Format(GetT("USES_SKILL"), _hero1.GetName(), pSkill->GetName());
+        UIManager::GetInstance().LogSummary(log);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
-            TriggerEffect(pSkill, _knight);
+            TriggerEffect(pSkill, _hero2);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::self)
-            TriggerEffect(pSkill, _orc);
-
-        summary += "\n";
+            TriggerEffect(pSkill, _hero1);
     }
 
     // knight skills
-    for (int i = 0; i < list_knightSkills.size(); i++) {
-        Skill* pSkill = list_knightSkills[i];
+    for (Skill* pSkill : listSkills2) {
 
-        string log = Format(GetT("USES_SKILL"), _knight._name.c_str(), pSkill->_name.c_str());
-        UITools::LogSummary(log);
+        string log = Format(GetT("USES_SKILL"), _hero2.GetName(), pSkill->GetName());
+        UIManager::GetInstance().LogSummary(log);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
-            TriggerEffect(pSkill, _orc);
+            TriggerEffect(pSkill, _hero1);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::self)
-            TriggerEffect(pSkill, _knight);
-
-        summary += "\n";
+            TriggerEffect(pSkill, _hero2);
     }
 
     string log = GetT("BATTLE_PHASE");
-    UITools::LogSummary(log);
+    UIManager::GetInstance().LogSummary(log);
 
-    // knight attacks
-    if (_knight.IsStunned(summary) == false) {
-        string log = Format(GetT("ATTACK"), _knight._name.c_str(), _orc._name.c_str(), _knight._weapon._name.c_str());
-        UITools::LogSummary(log);
-        _orc.RecieveDamages(_knight.GetDamages());
-        UITools::LogSummary("");
+    // hero1 attacks
+    if (_hero1._stun > 0) {
+        log = Format(GetT("STUNNED_THIS_TURN"), _hero1.GetName(), _hero1._stun);
+        UIManager::GetInstance().LogSummary(log);
+    }
+    else {
+        // write attack line in summary
+        log = Format(GetT("ATTACK"), _hero1.GetName(), _hero2.GetName(), _hero1.GetWeaponName());
+        UIManager::GetInstance().LogSummary(log);
+
+        log = _hero2.RecieveDamages(_hero1.GetDamages());
+        UIManager::GetInstance().LogSummary(log + "\n");
     }
 
     // orc attacks
-    if (_orc.IsStunned(summary) == false) {
-        string log = Format(GetT("ATTACK"), _orc._name.c_str(), _knight._name.c_str(), _orc._weapon._name.c_str());
-        UITools::LogSummary(log);
-        _knight.RecieveDamages(_orc.GetDamages());
-        UITools::LogSummary("");
+    if (_hero2._stun > 0) {
+        log = Format(GetT("STUNNED_THIS_TURN"), _hero2.GetName(), _hero2._stun);
+        UIManager::GetInstance().LogSummary(log + "\n");
+    }
+    else {
+        string log = Format(GetT("ATTACK"), _hero2.GetName(), _hero1.GetName(), _hero2.GetWeaponName());
+        UIManager::GetInstance().LogSummary(log);
+        log = _hero1.RecieveDamages(_hero2.GetDamages());
+        UIManager::GetInstance().LogSummary(log + "\n");
     }
 
     // then, effects update
@@ -132,31 +120,27 @@ void Battle::PlayTurn()
         i--;
     }
 
-    _knight.EndTurn();
-    _orc.EndTurn();
+    _hero1.EndTurn();
+    _hero2.EndTurn();
 
    _turn++;
-   UITools::LogSummary("\n");
+   UIManager::GetInstance().LogSummary("\n");
 }
 
 bool Battle::IsOver()
 {
-    if (_knight._stats._currentHP <= 0)
-        return true;
-    if(_orc._stats._currentHP <= 0)
+    if (_hero1._stats._currentHP <= 0 || _hero2._stats._currentHP <= 0)
         return true;
     return false;
 }
 
 void Battle::DisplayScore() {
 
-    if (_knight._stats._currentHP == 0) {
-        LOG(_knight._gameOver);
-    }
+    if (_hero1._stats._currentHP == 0) 
+        UIManager::GetInstance().LogSummary(_hero1._gameOver);
 
-    if (_orc._stats._currentHP == 0) {
-        LOG(_orc._gameOver);
-    }
+    if (_hero2._stats._currentHP == 0)
+        UIManager::GetInstance().LogSummary(_hero2._gameOver);
 
-    LOG("\n\n\t\t" + GetT("END"));
+    UIManager::GetInstance().LogSummary("\n\n\t\t" + GetT("END"));
 }

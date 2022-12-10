@@ -6,7 +6,7 @@ ENTER_CHAR_SHIELD;\tPoints de Bouclier de "%s" (entrer un nombre) : ;\t"%s" Shie
 ENTER_CHAR_WEAPON_NAME;\tEntrer le nom de l'arme de "%s" : ;\tEnter the name of the weapon of "%s" : 
 ENTER_CHAR_WEAPON_DAMAGES;\tPoints de Dégats de "%s" (entrer un nombre) : ;\t"%s" Damages Points (enter a number) : 
 TURN_COUNTER;\t------------------------\n\t\t------- TOUR %s --------\n\t\t------------------------\n;\t\t------------------------\n\t\t------- TURN %s --------\n\t\t------------------------\n
-CUSTOMIZE_HEROES_YN;\tVoulez vous personnaliser les héros qui vont s'affronter ?\n\t\t(appuyer sur "y" pour "oui" ou "n" pour "non");\tDo you want to customize the Heroes ? (y or n) :
+CUSTOM_HERO;Nouveau héro personnalisé;New custom hero
 BATTLE_BEGIN;Que le combat commence !!!;FIGHT !!!
 SHIELD;Bouclier : ; Shield : 
 LIFE_POINT;PV : ;HP : 
@@ -23,3 +23,10 @@ BONUS_DAMAGES;%s reçoit %d dégat(s) bonus pour %d tour(s) !!;%s recieved %d bonu
 MISS_STUN;%s évite le terrible coup de son adversaire !;%s avoid the blow of his opponent weapon !"
 MISS_CHARGE;%s rate lamentablement sa charge...;%s miserably miss his charge..."
 END;FIN;The end
+HERO_SELECT;\t\t=====================================\n\t\t========== Choix du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t\n\t\t========== Select a hero %d =========\n\t\t=====================================
+HERO_EDIT;\t\t=====================================\n\t\t======= Création du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t\n\t\t======== Creation of hero %d ========\n\t\t=====================================
+HERO_NAME;Nom du héros : ;Name of the hero : 
+HERO_HP;Nombre de PV (points de vie) de %s (entrez un nombre) : ;%s's HP (Life Points) (enter a number) : 
+HERO_SHIELD;Points de bouclier de %s (entrez un nombre) : ;%s's shield value (enter a number) :
+HERO_WEAPON_NAME;Arme de %s : ;%s's weapon : 
+HERO_WEAPON_DAMAGES;Dégats infligés par "%s" (entrez un nombre) : ;"%s"'s damages (enter a number) : 

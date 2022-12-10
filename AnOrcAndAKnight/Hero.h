@@ -4,6 +4,7 @@
 #include <string>
 
 using namespace std;
+
 class Skill;
 
 struct Stats {
@@ -37,23 +38,21 @@ class Hero
 {
 	// cons/destructor
 public:
-	Hero(const string& name, const Weapon& weapon, const Stats& stats) {
-		_name = name;
-		_weapon = weapon;
-		_stats = stats;
-		_gameOver = "R.I.P " + name;
-	};
-	~Hero() {};
+	Hero();
+	Hero(const string& name, const Weapon& weapon, const Stats& stats);
+	~Hero();
 	
+	Hero& operator=(const Hero&);
+
 	// attributes
 public:
 	Weapon _weapon;
 	string _name;
 	string _gameOver;
 	Stats _stats;				// hp&shield, current and max values
+	int _stun = 0;				// stunned turns left
 
 private:
-	int _stun = 0;				// stunned turns left
 	vector<Skill*> _listSkills;	// skills
 
 	friend class TempModifier;
@@ -62,12 +61,13 @@ private:
 public:
 	void EndTurn();
 	void Stun(int duration);
-	void AddSkill(Skill* pSkill);
+	void AddSkill(Skill*);
 	bool IsDead();
-	bool IsStunned(string& summary);
 	unsigned int GetDamages();
-	Stats RecieveDamages(int damages);
+	string RecieveDamages(int);
 	std::vector<Skill*> GetAvailableSkillsThisTurn();
+	const char* GetName() { return _name.c_str(); };
+	const char* GetWeaponName() { return _weapon._name.c_str(); };
 };
 
 // ordre du tour : 

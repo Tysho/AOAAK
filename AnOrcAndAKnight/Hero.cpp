@@ -1,7 +1,7 @@
 #include "Hero.h"
 
 #include "Skill.h"
-#include "UITools.h"
+#include "UIManager.h"
 #include "ResourcesManager.h"
 #include <string>
 #include <iostream>
@@ -21,28 +21,27 @@ unsigned int Hero::GetDamages()
     return _weapon._damages;
 }
 
-Stats Hero::RecieveDamages(int damages)
+string Hero::RecieveDamages(int damages)
 {
     // no damages ? then nothing
     if (damages == 0)
-        return _stats;
-    
+        return "";
+
+    string summary = "";
+
     // shield ? -> damages to shield
     if (_SHIELD > 0) {
         _SHIELD -= damages;
-        string text = Format(GetT("SHIELD_BLOCK"), _name.c_str());
+        summary = Format(GetT("SHIELD_BLOCK"), _name.c_str());
 
         // shield still ok
-        if (_SHIELD > 0) {
-            UITools::LogSummary(text);
-            return _stats;
-        }
+        if (_SHIELD > 0)
+            return summary.c_str();
 
         // shield destroyed, remainent damages will be inflicted to HP
         damages = -_SHIELD;
         _SHIELD = 0;
-        text += "\n\t\t\t" + Format(GetT("SHIELD_DESTROYED"), _name.c_str());
-        UITools::LogSummary(text);
+        summary += "\n\t\t\t" + Format(GetT("SHIELD_DESTROYED"), _name.c_str());
     }
 
     // no(more) shield -> damage to HP
@@ -50,10 +49,9 @@ Stats Hero::RecieveDamages(int damages)
     _HP = max(0, _HP);
   
     string format = GetT("TAKES_DAMAGES");
-    string log = Format(format, _name.c_str(), damages);
-    UITools::LogSummary(log);
+    summary += "\n\t" + Format(format, _name.c_str(), damages);
 
-    return _stats;
+    return summary.c_str();
 }
 
 vector<Skill*> Hero::GetAvailableSkillsThisTurn()
@@ -68,6 +66,37 @@ vector<Skill*> Hero::GetAvailableSkillsThisTurn()
     }
 
     return ret;
+}
+
+Hero::Hero()
+{
+    _name = "The One";
+    _weapon = Weapon();
+    _stats = Stats();
+    _gameOver = "R.I.P The One...";
+}
+
+Hero::Hero(const string& name, const Weapon& weapon, const Stats& stats) :
+    _name(name),
+    _weapon(weapon),
+    _stats(stats) 
+{ }
+
+Hero::~Hero()
+{
+    for (Skill* pSkill : _listSkills)
+        delete pSkill;
+}
+
+Hero& Hero::operator=(const Hero& other)
+{
+     _weapon = other._weapon;
+     _name = other._name;
+     _gameOver = other._gameOver;
+    _stats = other._stats;				// hp&shield, current and max values
+     _stun = other._stun;
+
+    return *this;
 }
 
 void Hero::EndTurn()
@@ -95,14 +124,5 @@ bool Hero::IsDead()
 {
     if (_stats._currentHP <= 0)
         return true;
-    return false;
-}
-
-bool Hero::IsStunned(string& summary) 
-{
-    if (_stun > 0) {
-        summary += "\n\t" + Format(GetT("STUNNED_THIS_TURN"), _name, _stun);
-        return true;
-    }
     return false;
 }
