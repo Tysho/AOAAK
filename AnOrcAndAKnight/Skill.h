@@ -4,6 +4,16 @@
 
 using namespace std;
 
+#define NEW_HERO_CLASS(classname, code)				\
+class classname : public Skill {					\
+public:												\
+	classname();									\
+	virtual ~classname() {};						\
+public:												\
+	virtual TempModifier* Cast(Hero& target) final;	\
+	int GetCode() { return code; };					\
+};
+
 enum class TypeTarget {
 	self,
 	opponent,
@@ -13,41 +23,34 @@ enum class TypeTarget {
 class Hero;
 class TempModifier;
 
-// skill the figter can use
+// skill the hero can use
 class Skill {
 public:
-	Skill();
+	Skill() {};
 	virtual ~Skill() {};
 
 public:
-	std::string _name;
-	TypeTarget _target;
-	short _timer;		// timer left before next cast
-	int _accuracy;		// percentage (0 = never hit to 100 = always hit)
+	std::string _name = "UNNAMED_SKILL";
+	TypeTarget _target = TypeTarget::opponent;
+	short _timer = 0;							// timer left before next cast
+	int _accuracy = 50;							// percentage (0 = never hit to 100 = always hit)
 
 protected:
-	short _cooldown;	// delay between 2 casts
+	short _cooldown = 5;						// delay between 2 casts
 
 public:
-	virtual TempModifier* Cast(Hero& target);
-	void EndTurn();
+	virtual TempModifier* Cast(Hero& target) { _timer = _cooldown; return nullptr; };
+	void EndTurn() { _timer--; };
+	int GetCode() { return -1; };
 	const char* GetName() { return _name.c_str(); };
+	static Skill* CreateSkillInstanceById(int idSkill);
 };
 
-class Stun : public Skill {
-public:
-	Stun();
-	virtual ~Stun() {};
+#define STUN 1
+NEW_HERO_CLASS(Stun, STUN);
 
-public:
-	virtual TempModifier* Cast(Hero& target) final;
-};
+#define CHARGE 2
+NEW_HERO_CLASS(Charge, CHARGE);
 
-class Chaaaaaarge : public Skill {
-public:
-	Chaaaaaarge();
-	virtual ~Chaaaaaarge() {};
-
-public:
-	virtual TempModifier* Cast(Hero& target) final;
-};
+#define ARROW_KNEE 3
+NEW_HERO_CLASS(ArrowInTheKnee, ARROW_KNEE);

@@ -191,9 +191,9 @@ void UIManager::SelectHero(Hero& hero, int numHero)
 		for (Hero* p : ResourcesManager::_listHeroes)
 		{
 			if (curSelection == curPosition)
-				screen += "\t > [ " + p->_name + " (" + p->_class + ") ]" + "\n\n";
+				screen += "\t > [ " + p->_name + " (" + p->_class._name + ") ]" + "\n\n";
 			else
-				screen += "\t" + p->_name + " (" + p->_class + ")\n\n";
+				screen += "\t" + p->_name + " (" + p->_class._name + ")\n\n";
 			curPosition++;
 		}
 
@@ -344,11 +344,11 @@ void UIManager::LaunchEditForm(Hero& hero, int heroNumber)
 	screen += " " + to_string(hero._stats._currentShield);
 
 	screen += "\n\n" + Format(GetT("HERO_WEAPON_NAME"), hero.GetName());
-	hero._weapon._name = ReadText(screen);
-	screen += " " + hero._weapon._name;
+	hero._class._name = ReadText(screen);
+	screen += " " + hero._class._name;
 
 	screen += "\n\n" + Format(GetT("HERO_WEAPON_DAMAGES"), hero.GetWeaponName());
-	hero._weapon._damages = ReadNumber(screen);
+	hero._stats._damages = ReadNumber(screen);
 
 	CleanScreen();
 }

@@ -13,12 +13,36 @@ using namespace std;
 #define _SHIELD _stats._currentShield
 #define _HP _stats._currentHP
 
+vector<HeroClass> HeroClass::_listClasses = {
+    HeroClass("Knight", "Sword", true, {CHARGE}),
+    HeroClass("Orc", "Axe", false, {STUN}),
+    HeroClass("Elf", "Longbow", false, {ARROW_KNEE})
+};
+
+HeroClass::HeroClass(const string& name, const string& weapon, bool shield, vector<int> listSkills) :
+    _name(name),
+    _weapon(weapon),
+    _hasShield(shield)
+{
+    for (int skillId : listSkills)
+        _listSkillsId.push_back(skillId);
+};
+
+
+HeroClass& HeroClass::operator=(const HeroClass& other)
+{
+    _name = other._name;
+    _weapon = other._weapon;
+    _hasShield = other._hasShield;
+    _listSkillsId = other._listSkillsId;
+
+    return *this;
+}
+
+
 unsigned int Hero::GetDamages()
 {
-    if (_stun > 0) {
-        return 0;
-    }
-    return _weapon._damages;
+    return _stats._damages;
 }
 
 string Hero::RecieveDamages(int damages)
@@ -38,10 +62,11 @@ string Hero::RecieveDamages(int damages)
         if (_SHIELD > 0)
             return summary.c_str();
 
-        // shield destroyed, remainent damages will be inflicted to HP
+        // shield destroyed
         damages = -_SHIELD;
         _SHIELD = 0;
         summary += "\n\t\t\t" + Format(GetT("SHIELD_DESTROYED"), _name.c_str());
+        return summary.c_str();
     }
 
     // no(more) shield -> damage to HP
@@ -68,37 +93,33 @@ vector<Skill*> Hero::GetAvailableSkillsThisTurn()
     return ret;
 }
 
-Hero::Hero()
-{
-    _class = "Hero";
-    _name = "The One";
-    _weapon = Weapon();
-    _stats = Stats();
-    _gameOver = "R.I.P The One...";
-}
-
-Hero::Hero(const string& className, const string& name, const Weapon& weapon, const Stats& stats) :
-    _class(className),
+Hero::Hero(const HeroClass& heroClass, const string& name, const Stats& stats) :
     _name(name),
-    _weapon(weapon),
-    _stats(stats) 
-{ }
+    _stats(stats)
+{
+    _class = heroClass;
+    for (int skillId : _class._listSkillsId) {
+        Skill* pSkill = Skill::CreateSkillInstanceById(skillId);
+        _listSkills.push_back(pSkill);
+    }
+}
 
 Hero::~Hero()
 {
-    for (Skill* pSkill : _listSkills)
-        delete pSkill;
+    for (Skill* pSkill : _listSkills) {
+        if (pSkill)
+            delete pSkill;
+    }
 }
 
 Hero& Hero::operator=(const Hero& other)
 {
     _class = other._class;
-    _weapon = other._weapon;
     _name = other._name;
     _gameOver = other._gameOver;
     _stats = other._stats;				// hp&shield, current and max values
     _stun = other._stun;
-
+    _listSkills = other._listSkills;
     return *this;
 }
 
@@ -115,12 +136,6 @@ void Hero::Stun(int duration)
 {
     if (_stun < duration)
         _stun = duration;
-}
-
-void Hero::AddSkill(Skill* pSkill)
-{
-    if (pSkill != nullptr)
-        _listSkills.push_back(pSkill);
 }
 
 bool Hero::IsDead()

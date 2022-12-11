@@ -19,12 +19,13 @@ short TempModifier::Update()
 /// <returns></returns>
 string DamageModifier::Affect()
 {
-	_target._weapon._damages += _value;
-	string s = "\t" + Format(GetT("BONUS_DAMAGES"), _target._name.c_str(), _value, _duration);
-	return s;
+	_target._stats._damages += _value;
+	string format = _value > 0 ? GetT("BONUS_DAMAGES") : GetT("MALUS_DAMAGES");
+	string s = "\t" + Format(format, _target._name.c_str(), _value, _duration);
+		return s;
 }
 
 void DamageModifier::Expire()
 {
-	_target._weapon._damages -= _value;
+	_target._stats._damages -= _value;
 }

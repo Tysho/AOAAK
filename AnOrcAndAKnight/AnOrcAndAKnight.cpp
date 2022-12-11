@@ -28,13 +28,9 @@ void Init() {
 // Edit/select hero
 void SelectHeroes(Hero& hero1, Hero& hero2) {
 
-    UIManager::GetInstance().SelectHero(hero1, 1);    
-    Chaaaaaarge* pCharge = new Chaaaaaarge;
-    hero1.AddSkill(pCharge);
+    UIManager::GetInstance().SelectHero(hero1, 1);
 
     UIManager::GetInstance().SelectHero(hero2, 2);
-    Stun* pStun = new Stun;
-    hero2.AddSkill(pStun);
 }
 
 int main()

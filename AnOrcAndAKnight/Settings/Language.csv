@@ -20,8 +20,10 @@ STUNNED_THIS_TURN;%s est sonné pour ce tour et ne peux pas attaquer ! (%d tour(s
 USES_SKILL;%s utilise sa compétence "%s";%s uses his skill "%s"
 STUNNED;%s est assomé par la violence du coup !;%s got stunned !"
 BONUS_DAMAGES;%s reçoit %d dégat(s) bonus pour %d tour(s) !!;%s recieved %d bonus damages for %d turn(s) !!"
+MALUS_DAMAGES;%s voit ses dégats réduits de %d pour %d tour(s) !!;%s has his damages creeple by %d for %d turn(s) !!"
 MISS_STUN;%s évite le terrible coup de son adversaire !;%s avoid the blow of his opponent weapon !"
-MISS_CHARGE;%s rate lamentablement sa charge...;%s miserably miss his charge..."
+MISS_CHARGE;%s rate lamentablement sa charge.;%s miserably miss his charge."
+MISS_ARROW_IN_THE_KNEE;%s évite la flèche qui vise ses jambes !;%s avoid the vicious shot."
 END;FIN;The end
 HERO_SELECT;\t\t=====================================\n\t\t========== Choix du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t\n\t\t========== Select a hero %d =========\n\t\t=====================================
 HERO_EDIT;\t\t=====================================\n\t\t======= Création du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t\n\t\t======== Creation of hero %d ========\n\t\t=====================================

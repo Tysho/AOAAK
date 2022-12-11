@@ -7,6 +7,8 @@
 
 #define LOG(str) cout << "\n\t"; cout << str;
 
+#pragma region STUN
+
 Stun::Stun() : Skill()
 {
     _target = TypeTarget::opponent;
@@ -35,15 +37,21 @@ TempModifier* Stun::Cast(Hero& target)
     return nullptr;
 }
 
-Chaaaaaarge::Chaaaaaarge() : Skill() {
+#pragma endregion
+
+#pragma region CHARGE
+
+Charge::Charge() : Skill()
+{
     _target = TypeTarget::self;
     _timer = 0;
     _cooldown = 3;
     _accuracy = 50;
-    _name = "Chaaaaaarge !!!";
+    _name = "Charge !!!";
 };
 
-TempModifier* Chaaaaaarge::Cast(Hero& target) {
+TempModifier* Charge::Cast(Hero& target) 
+{
     Skill::Cast(target);
 
     // miss ?
@@ -55,28 +63,54 @@ TempModifier* Chaaaaaarge::Cast(Hero& target) {
     }
 
     // damages doubled for 1 turn !
-    int bonusDamages = target._weapon._damages;
+    int bonusDamages = target.GetDamages();
 
     DamageModifier* pDM = new DamageModifier(_name, target, 1, bonusDamages);
     return pDM;
 }
 
-Skill::Skill() 
+#pragma endregion
+
+#pragma region ARROW IN THE KNEE
+
+ArrowInTheKnee::ArrowInTheKnee() : Skill()
 {
-    _name = "UNNAMED_SKILL";
     _target = TypeTarget::opponent;
-    _cooldown = 5;
     _timer = 0;
-    _accuracy = 50;
+    _cooldown = 5;
+    _accuracy = 35;
+    _name = "Arrow in the knee !";
 };
 
-TempModifier* Skill::Cast(Hero& target)
+TempModifier* ArrowInTheKnee::Cast(Hero& target) 
 {
-    _timer = _cooldown;
-    return nullptr;
+    Skill::Cast(target);
+
+    // miss ?
+    int random = rand() % 100;
+    if (_accuracy <= random) {
+        string log = "\t" + Format(GetT("MISS_ARROW_IN_THE_KNEE"), target._name.c_str());
+        UIManager::GetInstance().LogSummary(log);
+        return nullptr;
+    }
+
+    // damages / 2 for 3 turn !
+    int bonusDamages = int(-0.5 * target.GetDamages());
+
+    DamageModifier* pDM = new DamageModifier(_name, target, 3, bonusDamages);
+    return pDM;
 }
 
-void Skill::EndTurn()
-{
-    _timer--;
+#pragma endregion
+
+Skill* Skill::CreateSkillInstanceById(int idSkill) {
+    switch (idSkill) {
+    case STUN:
+        return new Stun;
+    case CHARGE:
+        return new Charge;
+    case ARROW_KNEE:
+        return new ArrowInTheKnee;
+    }
+    return nullptr;
 }

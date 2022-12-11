@@ -2,6 +2,7 @@
 #include "Hero.h"
 #include "UIManager.h"
 
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -117,17 +118,27 @@ void ResourcesManager::LoadHeroes()
         while (getline(stream, val, ';'))
             tokens.push_back(val);
 
-        // HERO CLASS - UNUSED 
-        string heroclass = tokens[0];
+        // HERO CLASS
+        bool classFound = false;
+        HeroClass heroClass = HeroClass::_listClasses[0];
+        for (auto hc : HeroClass::_listClasses) {
+            if (hc._name != tokens[0])
+                continue;
+
+            classFound = true;
+            heroClass = hc;
+            break;
+        }
+        if(classFound == false)
+            parseError += "Invalid Class Name for Hero : \"" + tokens[0] + "\" could not be found. \"" + heroClass._name + "\" used by default\n";
 
         // HERO NAME
-        string name = tokens[1];
+        string name = ToAscii(tokens[1]);
         
         // HERO HP
         int hp = 50;
-        if (UIManager::IsNumber(tokens[2]) == false || atoi(tokens[2].c_str()) == 0) {
+        if (UIManager::IsNumber(tokens[2]) == false || atoi(tokens[2].c_str()) == 0)
             parseError += "Invalid HP value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[2] + "\" ; 50 used by default\n";
-        }
         else
             hp = atoi(tokens[2].c_str());
 
@@ -139,19 +150,19 @@ void ResourcesManager::LoadHeroes()
             shield = atoi(tokens[3].c_str());
 
         // HERO WEAPON'S NAME
-        string weaponName = tokens[4];
+        string weaponName = ToAscii(tokens[4]);
 
         // HERO WEAPON'S DAMAGE
-        int weaponDamage = 5;
+        int damages = 5;
         if (tokens[5] != "" && UIManager::IsNumber(tokens[5]) == false)
             parseError += "Invalid Shield value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[5] + "\" ; 5 used by default\n";
         else
-            weaponDamage = atoi(tokens[5].c_str());
+            damages = atoi(tokens[5].c_str());
 
         // HERO'S DEFEAT MESSAGE
         string gameOver = tokens[6];
 
-        Hero* pHero = new Hero(heroclass, name, Weapon(weaponName, weaponDamage), Stats(hp, shield));
+        Hero* pHero = new Hero(heroClass, name, Stats(damages, hp, shield));
         pHero->_gameOver = gameOver;
         _listHeroes.push_back(pHero);
     }
