@@ -29,14 +29,10 @@ TempModifier* Battle::TriggerEffect(Skill* pSkill, Hero& target)
 void Battle::InitBattle()
 {
     UIManager::GetInstance().DisplayBattleStart(_hero1, _hero2);
-    _turn = 1;
 }
 
 
-/// <summary>
-/// Play a turn and return the summary as string
-/// </summary>
-/// <returns></returns>
+// Play a turn and prepare the summary as string
 void Battle::PlayTurn()
 { 
     // get lists of available skills
@@ -123,7 +119,6 @@ void Battle::PlayTurn()
     _hero1.EndTurn();
     _hero2.EndTurn();
 
-   _turn++;
    UIManager::GetInstance().LogSummary("\n");
 }
 
@@ -134,7 +129,11 @@ bool Battle::IsOver()
     return false;
 }
 
-void Battle::DisplayScore() {
+bool Battle::DisplayScore() 
+{
+    if (_gameOver)
+        return false;
+    _gameOver = true;
 
     if (_hero1._stats._currentHP == 0) 
         UIManager::GetInstance().LogSummary(_hero1._gameOver);
@@ -143,4 +142,6 @@ void Battle::DisplayScore() {
         UIManager::GetInstance().LogSummary(_hero2._gameOver);
 
     UIManager::GetInstance().LogSummary("\n\n\t\t" + GetT("END"));
+    UIManager::GetInstance().DisplayBattleEnd();
+    return true;
 }

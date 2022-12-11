@@ -70,13 +70,15 @@ vector<Skill*> Hero::GetAvailableSkillsThisTurn()
 
 Hero::Hero()
 {
+    _class = "Hero";
     _name = "The One";
     _weapon = Weapon();
     _stats = Stats();
     _gameOver = "R.I.P The One...";
 }
 
-Hero::Hero(const string& name, const Weapon& weapon, const Stats& stats) :
+Hero::Hero(const string& className, const string& name, const Weapon& weapon, const Stats& stats) :
+    _class(className),
     _name(name),
     _weapon(weapon),
     _stats(stats) 
@@ -90,11 +92,12 @@ Hero::~Hero()
 
 Hero& Hero::operator=(const Hero& other)
 {
-     _weapon = other._weapon;
-     _name = other._name;
-     _gameOver = other._gameOver;
+    _class = other._class;
+    _weapon = other._weapon;
+    _name = other._name;
+    _gameOver = other._gameOver;
     _stats = other._stats;				// hp&shield, current and max values
-     _stun = other._stun;
+    _stun = other._stun;
 
     return *this;
 }

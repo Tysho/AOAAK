@@ -16,15 +16,15 @@ public:
 	~Battle() {};
 
 private:
-	int _turn = 0;
+	bool _gameOver = false;
 	Hero& _hero1;
 	Hero& _hero2;
 	vector<TempModifier*> _listModifiers;
 
 public:
-	void DisplayScore();
-	bool IsOver();
 	void PlayTurn();
+	bool DisplayScore();
+	bool IsOver();
 
 private:
 	void InitBattle();

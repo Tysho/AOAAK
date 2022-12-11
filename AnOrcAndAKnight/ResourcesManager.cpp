@@ -118,7 +118,7 @@ void ResourcesManager::LoadHeroes()
             tokens.push_back(val);
 
         // HERO CLASS - UNUSED 
-        string Heroclass = tokens[0];
+        string heroclass = tokens[0];
 
         // HERO NAME
         string name = tokens[1];
@@ -151,7 +151,7 @@ void ResourcesManager::LoadHeroes()
         // HERO'S DEFEAT MESSAGE
         string gameOver = tokens[6];
 
-        Hero* pHero = new Hero(name, Weapon(weaponName, weaponDamage), Stats(hp, shield));
+        Hero* pHero = new Hero(heroclass, name, Weapon(weaponName, weaponDamage), Stats(hp, shield));
         pHero->_gameOver = gameOver;
         _listHeroes.push_back(pHero);
     }

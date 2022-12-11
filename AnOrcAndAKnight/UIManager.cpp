@@ -82,7 +82,7 @@ string DrawBar(bool isHp, const Stats& left, const Stats& right)
 	if (isHp == false && leftMax + rightMax == 0)
 		return "";
 
-	// left bar (if shield bar for no shield Hero, don't display)
+	// left bar (if hero doesn't have shield don't display)
 	if (isHp || leftMax > 0) {
 		int hpPlain = leftCur * barreWidth / leftMax;
 		for (int i = 0; i < hpPlain; i++)
@@ -92,7 +92,7 @@ string DrawBar(bool isHp, const Stats& left, const Stats& right)
 	}
 	else {
 		for (int i = 0; i < barreWidth; i++)
-			result += "";
+			result += " ";
 	}
 
 	// separator
@@ -150,6 +150,15 @@ string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 }
 
 
+void UIManager::DisplayBattleEnd()
+{
+	CleanScreen();
+	cout << _summary;
+	_history.push_back(_summary);
+	_currentTurn = int(_history.size() - 1);
+	_summary = "";
+}
+
 void UIManager::DisplayBattleStart(const Hero& left, const Hero& right) {
 	LogSummary("\n\t\t" + GetT("BATTLE_BEGIN"));
 	DrawNewTurn(left, right);
@@ -182,16 +191,16 @@ void UIManager::SelectHero(Hero& hero, int numHero)
 		for (Hero* p : ResourcesManager::_listHeroes)
 		{
 			if (curSelection == curPosition)
-				screen += "> [" + p->_name + "]" + "\n\n";
+				screen += "\t > [ " + p->_name + " (" + p->_class + ") ]" + "\n\n";
 			else
-				screen += p->_name + "\n\n";
+				screen += "\t" + p->_name + " (" + p->_class + ")\n\n";
 			curPosition++;
 		}
 
 		if (curSelection == curPosition)
-			screen += "> [" + GetT("CUSTOM_HERO") + "]" + "\n\n";
+			screen += "\t > [ " + GetT("CUSTOM_HERO") + " ]" + "\n\n";
 		else 
-			screen += GetT("CUSTOM_HERO") + "\n\n";
+			screen += "\t" + GetT("CUSTOM_HERO") + "\n\n";
 
 		cout << screen;
 
@@ -260,6 +269,7 @@ string UIManager::DrawStats(const Hero& left, const Hero& right)
 
 void UIManager::DrawNewTurn(const Hero& left, const Hero& right)
 {
+	_currentTurn++;
 	LogTurnCount(_currentTurn);
 
 	// display everything on console
@@ -308,15 +318,9 @@ void UIManager::DisplayPreviousTurn(bool forceLastTurn)
 		return;
 
 	CleanScreen();
-
-	// came from scoreboard ? display last
-	if (forceLastTurn)
-		_currentTurn = int(_history.size() - 1);
 	
 	// display previous
-	else 
-		_currentTurn--;
-
+	_currentTurn--;
 	cout << _history[_currentTurn];
 }
 

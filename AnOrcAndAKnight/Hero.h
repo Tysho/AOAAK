@@ -39,7 +39,7 @@ class Hero
 	// cons/destructor
 public:
 	Hero();
-	Hero(const string& name, const Weapon& weapon, const Stats& stats);
+	Hero(const string& className, const string& name, const Weapon& weapon, const Stats& stats);
 	~Hero();
 	
 	Hero& operator=(const Hero&);
@@ -47,6 +47,7 @@ public:
 	// attributes
 public:
 	Weapon _weapon;
+	string _class;
 	string _name;
 	string _gameOver;
 	Stats _stats;				// hp&shield, current and max values

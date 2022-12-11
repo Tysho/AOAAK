@@ -38,7 +38,7 @@ private:
 
     // Attributes
 private:
-    int _currentTurn = 0;
+    int _currentTurn = -1;
     string _header = "";
     string _summary = "";
     vector<string> _history;
@@ -47,10 +47,11 @@ private:
 public:
     static bool IsNumber(const string& s);
 
+    void DisplayBattleEnd();
+    void DisplayBattleStart(const Hero&, const Hero&);
     void DisplayPreviousTurn(bool forceLastTurn = false);
     void DrawNewTurn(const Hero&, const Hero&);
     void LaunchEditForm(Hero&, int numHero);
-    void DisplayBattleStart(const Hero&, const Hero&);
     void LogSummary(const string&);
     void LogTurnCount(int);
     void SelectHero(Hero&, int numHero);

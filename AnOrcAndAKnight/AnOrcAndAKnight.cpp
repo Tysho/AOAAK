@@ -63,15 +63,19 @@ int main()
                 continue;
         }
 
-        // already on end screen ? display winner
+        // Battle is over ? display winner
         if (battle.IsOver())
         {
-            battle.DisplayScore();
+            // first time on score board : display winner, otherwise, leave
+            if (battle.DisplayScore() == false)
+                return 1;
 
-            if (UIManager::GetInstance().GetInputKeyForwardBackward() == NextDisplay::FORWARD) {
-                UIManager::GetInstance().DisplayPreviousTurn(true);
-                continue;
-            }
+            // the end if we continue from there
+            if (UIManager::GetInstance().GetInputKeyForwardBackward() == NextDisplay::FORWARD) 
+                break;
+
+            UIManager::GetInstance().DisplayPreviousTurn(true);
+            continue;
         }
 
         // compute another turn for the fight
@@ -80,7 +84,4 @@ int main()
         // display result screen
         UIManager::GetInstance().DrawNewTurn(hero1, hero2);
     }
-
-    int a=_getch();
-    return 1;
 }
