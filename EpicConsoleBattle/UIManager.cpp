@@ -46,6 +46,8 @@ inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName
 	{
 		if (p->_name == firstHeroName && p->_class._name == firstHeroClass)
 		{
+			if (curPosition == curSelection)
+				curSelection++;
 			curPosition++;
 			continue;
 		}
@@ -384,10 +386,8 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 	while (1) {
 		string screen = header + DisplayHeroSelector(curSelection, firstHeroName, firstHeroClass);
 
-		// reaching last displayed line...
+		// reaching last displayed line to display instructions
 		screen = AddEmptyLinesUntilBottomScreen(screen);
-
-		// ... to display instructions
 		screen += DisplayInstructions(InstructionType::FORM_SELECT);
 		screen += "\n" + DrawNiceLine();
 
