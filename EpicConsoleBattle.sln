@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnOrcAndAKnight", "AnOrcAndAKnight\AnOrcAndAKnight.vcxproj", "{18456CA3-8BCD-4231-8A60-EBA0615C794B}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EpicConsoleBattle", "EpicConsoleBattle\AnOrcAndAKnight.vcxproj", "{18456CA3-8BCD-4231-8A60-EBA0615C794B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

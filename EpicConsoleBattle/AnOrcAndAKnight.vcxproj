@@ -24,6 +24,7 @@
     <ProjectGuid>{18456ca3-8bcd-4231-8a60-eba0615c794b}</ProjectGuid>
     <RootNamespace>AnOrcAndAKnight</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>EpicConsoleBattle</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -145,7 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AnOrcAndAKnight.cpp" />
+    <ClCompile Include="EpicConsoleBattle.cpp" />
     <ClCompile Include="Hero.cpp" />
     <ClCompile Include="Battle.cpp" />
     <ClCompile Include="ResourcesManager.cpp" />
