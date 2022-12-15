@@ -1,5 +1,4 @@
 // reads stocks and gives access to resources from csv files in "Settings" folder
-
 #pragma once
 
 using namespace std;
@@ -10,15 +9,15 @@ class ResourcesManager
 {
 public:
 	static vector<Hero*> _listHeroes;	// catalog of all available Heroes (hero picker at the beginning of the battle)
-
+	static string _currentLanguage;
 private:
-	static map<string, string> _catLanguageResources;	// catalog of all language resources (meaning all texts displayed in the app)
+	static map<string, map<string, string>> _catLanguageResources;	// string[KEY][LANG] : catalog of all language resources (meaning all texts displayed in the app)
 
 public:
-	static void LoadLanguage(int langueId);
-	static void LoadHeroes();
-	static string GetText(const char* key);
-	static vector<string> GetAvailableLanguages();
+	static bool LoadHeroes();
+	static bool LoadLanguages();
+	static string GetText(const string& key, const string& lang);
+	static vector<string> GetListAvailableLanguages();
 };
 
 // Allow to format a string and return it in a single line fonction
@@ -36,4 +35,4 @@ inline static string Format(const string& fmt, Args... args)
 }
 
 // shorter call to ResourceManager::GetText
-inline static string GetT(const string& key) { return ResourcesManager::GetText(key.c_str()); };
+inline static string GetT(const string& key, const string& lang = ResourcesManager::_currentLanguage) { return ResourcesManager::GetText(key, lang); };

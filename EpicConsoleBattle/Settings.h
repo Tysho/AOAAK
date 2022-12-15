@@ -16,6 +16,9 @@ using namespace std;
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
 
+#define SCREEN_WIDTH 111
+#define NB_LINES_DISPLAYABLE_IN_CONSOLE 40
+
 // default Hero Classes are defined in Hero.cpp
 
 // default Heroes proposed are defined in file "Heroes.csv"

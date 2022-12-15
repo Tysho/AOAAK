@@ -118,7 +118,7 @@ bool Battle::DisplayScore()
     _gameOver = true;
 
     if (_hero1._stats._currentHP == 0) 
-        UI().LogSummary(_hero1._name + _hero1._gameOver);
+        UI().LogSummary(_hero1._name + _hero1._gameOver + "\n\n");
 
     if (_hero2._stats._currentHP == 0)
         UI().LogSummary(_hero2._name + _hero2._gameOver);

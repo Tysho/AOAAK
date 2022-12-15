@@ -1,20 +1,43 @@
-#include "UIManager.h"
+﻿#include "UIManager.h"
 #include "Settings.h"
 
 #include "Hero.h"
 #include "ResourcesManager.h"
 #include "Effect.h"
 
-#define SCREEN_WIDTH 111
 
+enum class InstructionType {
+	NAVIGATE,
+	FORM_SELECT
+};
 #pragma region Inline fct tools
 
 // clear console
-void CleanScreen() { system("cls"); };
+inline void CleanScreen() { system("cls"); };
 
+
+// count number of line in a string (=number of "\t"
+inline int GetNbLines(const string& s)
+{
+	 int nbLines = std::count(s.begin(), s.end(), '\n') + 1; 
+	 return nbLines;
+}
+
+
+// create a string with empty line until the bottom of the screen, considering the string starts at the very first line)
+inline string AddEmptyLinesUntilBottomScreen(const string& s, int stopBefore = 1) 
+{
+	string temp = s;
+	int nbLines = GetNbLines(s);
+	while (nbLines < NB_LINES_DISPLAYABLE_IN_CONSOLE) {
+		nbLines++;
+		temp += "\n";
+	}
+	return temp;
+}
 
 // display selector with current selection highlighted
-string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", const string& firstHeroClass = "")
+inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", const string& firstHeroClass = "")
 {
 	string screen;
 
@@ -215,6 +238,24 @@ inline void RemoveScrollbars()
 	SetConsoleScreenBufferSize(handleConsole, newSize);
 }
 
+
+inline string DisplayInstructions(InstructionType type) {
+
+	string right, left, up, down;
+	right += char(16);
+	left += char(17);
+	up += char(30);
+	down += char(31);
+
+	switch (type) {
+	case InstructionType::FORM_SELECT:
+		return "\t\t" + up + " | " + down + GetT("INSTRUCTIONS_MOVE") + "\t\t" + GetT("INSTRUCTIONS_SELECT");
+	case InstructionType::NAVIGATE:
+		return "\t\t" + left + " | " + up + GetT("INSTRUCTIONS_DISPLAY_PREVIOUS") + "\t\t" + right + " | " + down + GetT("INSTRUCTIONS_DISPLAY_NEXT");
+	default:
+		return "";
+	}
+}
 #pragma endregion
 
 
@@ -222,22 +263,43 @@ inline void RemoveScrollbars()
 void UIManager::SelectLanguage()
 {
 	// get available languages
-	vector<string>&& listLang = ResourcesManager::GetAvailableLanguages();
-
+	vector<string>&& listLang = ResourcesManager::GetListAvailableLanguages();
+	
+	// stocking current selected language to display instructions properly
+	string curLanguage = ""; 
+	
 	// display selector
 	int curSelection = 0;
+
+	string sep = " | ";
+	string arrowUp, arrowDown;
+	arrowUp += char(30);
+	arrowDown += char(31);
+	
 	while (1) {
 		CleanScreen();
-		string screen = "\n\n";
+		string screen = DrawNiceLine() + "\n\n";
 		int curPosition = 0;
+		string curLanguage = ""; // stocking current selected language to display instructions properly
 		for (string lang : listLang)
 		{
-			if (curSelection == curPosition)
+			if (curSelection == curPosition) {
+				curLanguage = lang;
 				screen += "\t > [ " + lang + " ]\n\n";
+			}
 			else
 				screen += "\t" + lang + "\n\n";
 			curPosition++;
 		}
+
+		// reaching last displayed line...
+		screen = AddEmptyLinesUntilBottomScreen(screen);
+
+		// ... to display instructions (can't use DisplayInstructions() because we need to specify a language
+		screen += "\t\t" + arrowUp;
+		screen += " | " + arrowDown + GetT("INSTRUCTIONS_MOVE", curLanguage);
+		screen += "\t\t" + GetT("INSTRUCTIONS_SELECT", curLanguage);
+		screen += "\n" + DrawNiceLine();
 		cout << screen;
 
 		// get user input
@@ -251,7 +313,7 @@ void UIManager::SelectLanguage()
 			curSelection = max(0, curSelection);
 			break;
 		case VerticalSelection::SELECT:
-			ResourcesManager::LoadLanguage(curSelection + 1);	// language id start at 1
+			ResourcesManager::_currentLanguage = curLanguage;	// language id start at 1
 			return;
 		}
 	}
@@ -270,7 +332,9 @@ void UIManager::SetupConsoleSize()
 void UIManager::DisplayBattleEnd()
 {
 	CleanScreen();
-	cout << _summary;
+	_summary = DrawNiceLine() + "\n\n" + _summary;
+	_summary = AddEmptyLinesUntilBottomScreen(_summary) + "\n" + DrawNiceLine();
+	cout << _summary;	
 	_history.push_back(_summary);
 	_currentTurn = int(_history.size() - 1);
 	_summary = "";
@@ -299,7 +363,7 @@ void UIManager::LogTurnCount(int turn)
 		strTurn = "0" + strTurn;
 
 	string log = Format(GetT("TURN_COUNTER"), strTurn.c_str());
-	_header += "\n\t" + log;
+	_header += "\n" + log;
 }
 
 
@@ -309,7 +373,7 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 	int curSelection = 0;
 	
 	// title
-	string header;
+	string header = DrawNiceLine() + "\n";
 
 	// announce first champ selected
 	if (numHero > 1)
@@ -319,6 +383,14 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 	// waiting for user choice
 	while (1) {
 		string screen = header + DisplayHeroSelector(curSelection, firstHeroName, firstHeroClass);
+
+		// reaching last displayed line...
+		screen = AddEmptyLinesUntilBottomScreen(screen);
+
+		// ... to display instructions
+		screen += DisplayInstructions(InstructionType::FORM_SELECT);
+		screen += "\n" + DrawNiceLine();
+
 		CleanScreen();
 		cout << screen;
 
@@ -372,6 +444,19 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 	}
 }
 
+
+// draw a beautiful line in console (for first and last line of screen display)
+string UIManager::DrawNiceLine()
+{
+	string ret, a, b, c, d;
+	a += char(16);
+	b += char(17);
+	c += char(30);
+	d += char(31);
+	for (int i = 0; i < 40; i++)
+		ret += b + c + d + a;
+	return ret;
+}
 
 // display hp/shield and effect of both champs
 string UIManager::DrawStats(Hero& left, Hero& right)
@@ -434,9 +519,18 @@ void UIManager::DrawNewTurn(Hero& left, Hero& right)
 	_currentTurn++;
 	LogTurnCount(_currentTurn);
 
+	string screen = _header + DrawStats(left, right) + _summary;
+
+	// reach last line of console...
+	screen = AddEmptyLinesUntilBottomScreen(screen);
+
+	// ... to display instructions
+	screen += DisplayInstructions(InstructionType::NAVIGATE);
+	screen += "\n" + DrawNiceLine();
+
 	// display everything on console
 	CleanScreen();
-	string screen = _header + DrawStats(left, right) + _summary;
+	screen = DrawNiceLine() + screen + DrawNiceLine();
 	cout << screen;
 
 	// save history
@@ -493,29 +587,39 @@ void UIManager::DisplayPreviousTurn(bool forceLastTurn)
 void UIManager::LaunchEditForm(Hero& hero, int heroNumber)
 {
 	// user select the class of the hero
-	string screen = DisplayClassSelector(hero, heroNumber);
+	string screen = DrawNiceLine() + "\n" + DisplayClassSelector(hero, heroNumber);
 
 	CleanScreen();
 	cout << screen;
 
+	// hero name
 	screen += "\n\n\t"+ Format(GetT("HERO_NAME"), hero.GetName());
-	hero._name = ReadText(screen);
+	string temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
+	hero._name = ReadText(temp);
 	screen += " " + hero._name;
 
+	// hero health points
 	screen += "\n\n\t" + Format(GetT("HERO_HP"), hero.GetName());
-	hero._stats._currentHP = hero._stats._maxHP = ReadNumber(screen);
+	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
+	hero._stats._currentHP = hero._stats._maxHP = ReadNumber(temp);
 	screen += " " + to_string(hero._stats._currentHP);
 
+	// hero shield value
 	screen += "\n\n\t" + Format(GetT("HERO_SHIELD"), hero.GetName());
-	hero._stats._currentShield = hero._stats._maxShield = ReadNumber(screen, true); // can be zero
+	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
+	hero._stats._currentShield = hero._stats._maxShield = ReadNumber(temp, true); // can be zero
 	screen += " " + to_string(hero._stats._currentShield);
 
+	// hero weapon name
 	screen += "\n\n\t" + Format(GetT("HERO_WEAPON_NAME"), hero.GetName());
-	hero._class._weapon = ReadText(screen);
+	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
+	hero._class._weapon = ReadText(temp);
 	screen += " " + hero._class._weapon;
 
+	// hero weapon damage
 	screen += "\n\n\t" + Format(GetT("HERO_WEAPON_DAMAGES"), hero.GetWeaponName());
-	hero._stats._damages = ReadNumber(screen);
+	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
+	hero._stats._damages = ReadNumber(temp);
 
 	CleanScreen();
 }
@@ -546,9 +650,16 @@ string UIManager::DisplayClassSelector(Hero& hero, int numHero)
 				screen += "\t" + hc._name + "\n\n";
 			curPosition++;
 		}
-		screen += "\n\t" + classDescription;
 
 		// display a resume of the class under the selector
+		screen += "\n\t" + classDescription;
+
+		// reaching last displayed line...
+		screen = AddEmptyLinesUntilBottomScreen(screen);
+
+		// ... to display instructions
+		screen += DisplayInstructions(InstructionType::FORM_SELECT);
+		screen += "\n" + DrawNiceLine();
 
 		CleanScreen();
 		cout << screen;

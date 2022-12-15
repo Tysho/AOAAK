@@ -65,6 +65,7 @@ public:
     NextDisplay GetInputKeyForwardBackward();
     VerticalSelection GetInputKeyVerticalSelection();
 private:
+    string DrawNiceLine();
     string DrawStats(Hero& left, Hero& right);
 };
 

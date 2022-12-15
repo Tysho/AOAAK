@@ -4,8 +4,10 @@
 #include "Hero.h"
 #include "UIManager.h"
 
-map<string, string> ResourcesManager::_catLanguageResources;
+map<string, map<string, string>> ResourcesManager::_catLanguageResources;
 vector<Hero*> ResourcesManager::_listHeroes;
+string ResourcesManager::_currentLanguage;
+
 
 string ToAscii(const string& text) {
     const char* s = text.c_str();
@@ -15,11 +17,11 @@ string ToAscii(const string& text) {
     return str;
 }
 
-vector<string> ResourcesManager::GetAvailableLanguages()
+vector<string> ResourcesManager::GetListAvailableLanguages()
 {
     ifstream languageFile("Settings/Language.csv");
     if (languageFile.is_open() == false) {
-        cerr << "Unable to open file !\n";
+        std::cerr << "Unable to open file !\n";
         exit(1);
         return vector<string>();
     }
@@ -38,16 +40,25 @@ vector<string> ResourcesManager::GetAvailableLanguages()
     // remove first value ("LANGUAGE" key)
     tokens.erase(tokens.begin());
 
+    ResourcesManager::_currentLanguage = tokens[0];
+    
     languageFile.close();
     return tokens;
 }
 
-void ResourcesManager::LoadLanguage(int langId)
+bool ResourcesManager::LoadLanguages()
 {
+    vector<string>&& listLanguages = GetListAvailableLanguages();
+
+    if (listLanguages.size() == 0) {
+        std::cerr << "Unable to open file !";
+        return false;
+    }
+
     ifstream languageFile("Settings/Language.csv");
     if (languageFile.is_open() == false) {
         std::cerr << "Unable to open file !";
-        return;
+        return false;
     }
 
     // read first line to get position of current language
@@ -74,19 +85,24 @@ void ResourcesManager::LoadLanguage(int langId)
             tokens.push_back(s);
         }
 
-        _catLanguageResources.insert({ tokens[0], tokens[langId] });
+        // stock in catalog
+        string key = tokens[0];
+        _catLanguageResources.insert({ key, map<string, string>() });
+        for (int i = 0; i < (int)listLanguages.size(); i++) {
+            _catLanguageResources[key].insert({ listLanguages[i], tokens[i + 1] });
+        }
     }
     languageFile.close();
     
-    HeroClass::InitClasses();
+    return true;
 }
 
-void ResourcesManager::LoadHeroes()
+bool ResourcesManager::LoadHeroes()
 {
     ifstream heroesFile("Settings/Heroes.csv");
     if (heroesFile.is_open() == false) {
         std::cerr << "Unable to open file !";
-        return;
+        return false;
     }
 
     // ignore first line (information to complete it with Excel
@@ -150,19 +166,18 @@ void ResourcesManager::LoadHeroes()
     }
 
     if (parseError == "") 
-        return;
+        return true;
     
     // parsing error
     std::cerr << parseError;
-    std::system("pause");
+    return false;
 }
 
-string ResourcesManager::GetText(const char* key)
+string ResourcesManager::GetText(const string& key, const string& language)
 {
-    if (_catLanguageResources.find(key) != _catLanguageResources.end())
-    {
-        if (_catLanguageResources[key] != "")
-            return _catLanguageResources[key];
-    }
-    return key;
+    if (_catLanguageResources.find(key) == _catLanguageResources.end())
+        return key;
+    
+    string text = _catLanguageResources[key][language];
+    return text != "" ? text : key;
 }
