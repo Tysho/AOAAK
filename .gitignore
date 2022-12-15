@@ -1,0 +1,9 @@
+################################################################################
+# Ce fichier .gitignore a été automatiquement créé par Microsoft(R) Visual Studio.
+################################################################################
+
+EpicConsoleBattle/.vs/EpicConsoleBattle/v16
+EpicConsoleBattle/EpicConsoleBattle/Debug
+EpicConsoleBattle/Debug
+.vs/
+Debug/
