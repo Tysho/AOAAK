@@ -1,14 +1,14 @@
 // AnOrcAndAKnight.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
 //
 
+#include "Settings.h"
 #include "Hero.h"
+
 #include "Battle.h"
 #include "Skill.h"
 #include "UIManager.h"
 #include "ResourcesManager.h"
 
-#include <conio.h>
-#include <iostream>
 
 using namespace std;
 
@@ -18,27 +18,23 @@ void Init() {
 
     // get heroes saved
     ResourcesManager::LoadHeroes();
-
-    // get languages resources
-    vector<string>&& listLang = ResourcesManager::GetAvailableLanguages();
-    ResourcesManager::LoadLanguage(listLang[0]);
 }
-
 
 // Edit/select hero
 void SelectHeroes(Hero& hero1, Hero& hero2) {
 
-    UIManager::GetInstance().SelectHero(hero1, 1);
+    UI().SelectHero(hero1, 1);
 
-    UIManager::GetInstance().SelectHero(hero2, 2);
+    UI().SelectHero(hero2, 2, hero1._name, hero1._class._name);
 }
 
 int main()
 {
+    UI().SelectLanguage();
+
     Init();
 
     Hero hero1, hero2;
-
     SelectHeroes(hero1, hero2);
 
     // begin battle
@@ -46,16 +42,16 @@ int main()
 
     // based on user input, play another turn of move in battle history
     while (1) {
-        NextDisplay input = UIManager::GetInstance().GetInputKeyForwardBackward();
+        NextDisplay input = UI().GetInputKeyForwardBackward();
 
         if (input == NextDisplay::BACKWARD) {
             // display previous turn
-            UIManager::GetInstance().DisplayPreviousTurn();
+            UI().DisplayPreviousTurn();
             continue;
         }
         else {
             // if alredy player, just display
-            if (UIManager::GetInstance().DisplayNextTurn())
+            if (UI().DisplayNextTurn())
                 continue;
         }
 
@@ -67,10 +63,10 @@ int main()
                 return 1;
 
             // the end if we continue from there
-            if (UIManager::GetInstance().GetInputKeyForwardBackward() == NextDisplay::FORWARD) 
+            if (UI().GetInputKeyForwardBackward() == NextDisplay::FORWARD) 
                 break;
 
-            UIManager::GetInstance().DisplayPreviousTurn(true);
+            UI().DisplayPreviousTurn(true);
             continue;
         }
 
@@ -78,6 +74,8 @@ int main()
         battle.PlayTurn();
 
         // display result screen
-        UIManager::GetInstance().DrawNewTurn(hero1, hero2);
+        UI().DrawNewTurn(hero1, hero2);
+
+        battle.EndTurn();
     }
 }

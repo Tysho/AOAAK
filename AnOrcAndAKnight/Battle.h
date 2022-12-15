@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Hero.h"
-#include "Skill.h"
-#include "TempModifier.h"
-
-#include <iostream>
 
 class Hero;
+class Effect;
+class Hero;
 class UIManager;
+class Skill;
 
 class Battle
 {
@@ -19,15 +18,16 @@ private:
 	bool _gameOver = false;
 	Hero& _hero1;
 	Hero& _hero2;
-	vector<TempModifier*> _listModifiers;
+	vector<Effect*> _listModifiers;
 
 public:
 	void PlayTurn();
+	void EndTurn();
 	bool DisplayScore();
 	bool IsOver();
 
 private:
 	void InitBattle();
-	TempModifier* TriggerEffect(Skill* pSkill, Hero& target);
+	bool UseSkill(Hero& user, Skill* pSkill, Hero& target);
 };
 

@@ -1,14 +1,13 @@
 LANGUAGE;Français;English
 SELECT_CHAR_CLASS;\tSélectionnez la classe du héros : ;\tSelect the class of the hero : 
-ENTER_CHAR_NAME;\tEntrer le nom du héros: \tEnter the name of the hero : 
+ENTER_CHAR_NAME;\tEntrer le nom du héros: ;\tEnter the name of the hero : 
 ENTER_CHAR_HP;\tPoints de Vie de "%s" (entrer un nombre) : ;\t"%s" Health Points (enter a number) : 
 ENTER_CHAR_SHIELD;\tPoints de Bouclier de "%s" (entrer un nombre) : ;\t"%s" Shield Points (enter a number) : 
-ENTER_CHAR_WEAPON_NAME;\tEntrer le nom de l'arme de "%s" : ;\tEnter the name of the weapon of "%s" : 
 ENTER_CHAR_WEAPON_DAMAGES;\tPoints de Dégats de "%s" (entrer un nombre) : ;\t"%s" Damages Points (enter a number) : 
 TURN_COUNTER;\t------------------------\n\t\t------- TOUR %s --------\n\t\t------------------------\n;\t\t------------------------\n\t\t------- TURN %s --------\n\t\t------------------------\n
-CUSTOM_HERO;Nouveau héro personnalisé;New custom hero
+CUSTOM_HERO;Nouveau héros personnalisé;New custom hero
 BATTLE_BEGIN;Que le combat commence !!!;FIGHT !!!
-SHIELD;Bouclier : ; Shield : 
+SHIELD;Bouclier : ;Shield : 
 LIFE_POINT;PV : ;HP : 
 SKILL_PHASE;\n\t>-   Phase de compétences\n;\n\t>-   Skill Phase\n
 BATTLE_PHASE;\n\t>-   Phase de combat\n;\n\t>-   Battle Phase\n
@@ -18,17 +17,31 @@ SHIELD_DESTROYED;Le bouclier de %s vole en éclat ! ça lui fait une belle jambe..
 TAKES_DAMAGES;\t%s subit %d damages !!!;\t%s recieved %d damages !!!
 STUNNED_THIS_TURN;%s est sonné pour ce tour et ne peux pas attaquer ! (%d tour(s) restant(s);%s is stunned this turn !(%d turn(s) left)"
 USES_SKILL;%s utilise sa compétence "%s";%s uses his skill "%s"
+USES_SKILL_ON;%s utilise sa compétence "%s" sur %s;%s uses his skill "%s" on %s
+SKILL_TURNS_LEFT;%s - %d tour(s);%s - %d turn(s)
 STUNNED;%s est assomé par la violence du coup !;%s got stunned !"
-BONUS_DAMAGES;%s reçoit %d dégat(s) bonus pour %d tour(s) !!;%s recieved %d bonus damages for %d turn(s) !!"
-MALUS_DAMAGES;%s voit ses dégats réduits de %d pour %d tour(s) !!;%s has his damages creeple by %d for %d turn(s) !!"
+BONUS_DAMAGES;%s reçoit un bonus aux dégats de %d%% pour %d tour(s) !!;%s gets a damage bonus of %d%% for %d turn(s) !!"
+MALUS_DAMAGES;%s voit ses dégats réduits de %d%% pour %d tour(s) !!;%s has damages creeple by %d%% for %d turn(s) !!"
 MISS_STUN;%s évite le terrible coup de son adversaire !;%s avoid the blow of his opponent weapon !"
 MISS_CHARGE;%s rate lamentablement sa charge.;%s miserably miss his charge."
 MISS_ARROW_IN_THE_KNEE;%s évite la flèche qui vise ses jambes !;%s avoid the vicious shot."
 END;FIN;The end
-HERO_SELECT;\t\t=====================================\n\t\t========== Choix du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t\n\t\t========== Select a hero %d =========\n\t\t=====================================
-HERO_EDIT;\t\t=====================================\n\t\t======= Création du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t\n\t\t======== Creation of hero %d ========\n\t\t=====================================
+HERO_SELECT;\t\t=====================================\n\t\t========== Choix du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t========== Select a hero %d =========\n\t\t=====================================
+HERO_EDIT;\t\t=====================================\n\t\t======= Création du héros %d ========\n\t\t=====================================;\t\t=====================================\n\t\t======== Creation of hero %d ========\n\t\t=====================================
+FIRST_HERO_PICKED;Premier héros choisi : %s (%s);First hero picked : %s (%s)
 HERO_NAME;Nom du héros : ;Name of the hero : 
 HERO_HP;Nombre de PV (points de vie) de %s (entrez un nombre) : ;%s's HP (Life Points) (enter a number) : 
 HERO_SHIELD;Points de bouclier de %s (entrez un nombre) : ;%s's shield value (enter a number) :
 HERO_WEAPON_NAME;Arme de %s : ;%s's weapon : 
 HERO_WEAPON_DAMAGES;Dégats infligés par "%s" (entrez un nombre) : ;"%s"'s damages (enter a number) : 
+DAMAGES;dégats ;damages 
+KNIGHT;Chevalier;Knight
+KNIGHT_WEAPON;épée;sword
+KNIGHT_DESCRIPTION;\tUn preux chevalier qui n'hésite pas à charger, doublant ses dégats pour\n\t\tun tour (3 tour de rechargement);\tA knight in his shiny armor, who can charge the opponent to double\n\t\this damage for one turn (once every 3 turns)
+ORC;Orc;Orc;
+ORC_WEAPON;hache;axe
+ORC_DESCRIPTION;\tUn guerrier sauvage, capable d'assommer un adversaire pendant un tour\n\t\td'un brutal coup de son imposante hache (5 tour de rechargement);\tA fierce warrior with hurging bloodthirst, who can stun for one turn the\n\t\tennemy with a brutal blow (once every 5 turns)
+ELF;Elfe;Elf
+ELF_WEAPON;arc long;longbow
+ELF_DESCRIPTION;\tUn agile esprit des bois, capable d'handicaper un adversaire, réduisant\n\t\tnotablement ses dégats pour 3 tours(4 tour de rechargement);\tA graceful and skillful spirit of the wood, who can creeple the damages\n\t\tof the opponent for 3 turns (once every 4 turns)
+HERO_CLASS;Classe : ;Class : 

@@ -1,13 +1,8 @@
+#include "Settings.h"
 #include "ResourcesManager.h"
+
 #include "Hero.h"
 #include "UIManager.h"
-
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <algorithm>
-#include <windows.h> // for CharToOemA
 
 map<string, string> ResourcesManager::_catLanguageResources;
 vector<Hero*> ResourcesManager::_listHeroes;
@@ -38,7 +33,7 @@ vector<string> ResourcesManager::GetAvailableLanguages()
     string intermediate;
     vector<string> tokens;
     while (getline(checkLanguage, intermediate, ';'))
-        tokens.push_back(intermediate);
+        tokens.push_back(ToAscii(intermediate));
 
     // remove first value ("LANGUAGE" key)
     tokens.erase(tokens.begin());
@@ -47,7 +42,7 @@ vector<string> ResourcesManager::GetAvailableLanguages()
     return tokens;
 }
 
-void ResourcesManager::LoadLanguage(const string& curLangue)
+void ResourcesManager::LoadLanguage(int langId)
 {
     ifstream languageFile("Settings/Language.csv");
     if (languageFile.is_open() == false) {
@@ -59,21 +54,8 @@ void ResourcesManager::LoadLanguage(const string& curLangue)
     string line;
     getline(languageFile, line);
 
-    // tokenize the line to get all languages
-    stringstream checkLanguage(line);
-    vector<string> tokens = GetAvailableLanguages();
-    int languePos = 1;
-    
-    // try to find current langue in all defined languages
-    for (int i = 0; i < tokens.size(); i++) {
-        if (tokens[i] != curLangue)
-            continue;
-         
-        languePos = i + 1;
-        break;
-    }
-
     // get all texts in current langue with key
+    vector<string> tokens;
     while (getline(languageFile, line)) {
         tokens.clear();
         stringstream texts(line);
@@ -92,9 +74,11 @@ void ResourcesManager::LoadLanguage(const string& curLangue)
             tokens.push_back(s);
         }
 
-        _catLanguageResources.insert({ tokens[0], tokens[languePos] });
+        _catLanguageResources.insert({ tokens[0], tokens[langId] });
     }
     languageFile.close();
+    
+    HeroClass::InitClasses();
 }
 
 void ResourcesManager::LoadHeroes()
@@ -121,8 +105,9 @@ void ResourcesManager::LoadHeroes()
         // HERO CLASS
         bool classFound = false;
         HeroClass heroClass = HeroClass::_listClasses[0];
-        for (auto hc : HeroClass::_listClasses) {
-            if (hc._name != tokens[0])
+        for (auto& hc : HeroClass::_listClasses) {
+            string className = GetT(tokens[0]);
+            if (hc._name != className)
                 continue;
 
             classFound = true;
@@ -149,18 +134,15 @@ void ResourcesManager::LoadHeroes()
         else
             shield = atoi(tokens[3].c_str());
 
-        // HERO WEAPON'S NAME
-        string weaponName = ToAscii(tokens[4]);
-
         // HERO WEAPON'S DAMAGE
         int damages = 5;
-        if (tokens[5] != "" && UIManager::IsNumber(tokens[5]) == false)
-            parseError += "Invalid Shield value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[5] + "\" ; 5 used by default\n";
+        if (tokens[4] != "" && UIManager::IsNumber(tokens[4]) == false)
+            parseError += "Invalid Shield value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[4] + "\" ; 5 used by default\n";
         else
-            damages = atoi(tokens[5].c_str());
+            damages = atoi(tokens[4].c_str());
 
         // HERO'S DEFEAT MESSAGE
-        string gameOver = tokens[6];
+        string gameOver = tokens[5];
 
         Hero* pHero = new Hero(heroClass, name, Stats(damages, hp, shield));
         pHero->_gameOver = gameOver;
@@ -173,11 +155,6 @@ void ResourcesManager::LoadHeroes()
     // parsing error
     std::cerr << parseError;
     std::system("pause");
-}
-
-void ResourcesManager::SaveHeroes(const Hero& Hero)
-{
-    // todo
 }
 
 string ResourcesManager::GetText(const char* key)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 using namespace std;
 
 #define NEW_HERO_CLASS(classname, code)				\
@@ -10,7 +8,7 @@ public:												\
 	classname();									\
 	virtual ~classname() {};						\
 public:												\
-	virtual TempModifier* Cast(Hero& target) final;	\
+	virtual bool Cast(Hero& target) final;	\
 	int GetCode() { return code; };					\
 };
 
@@ -21,7 +19,7 @@ enum class TypeTarget {
 };
 
 class Hero;
-class TempModifier;
+class Effect;
 
 // skill the hero can use
 class Skill {
@@ -39,7 +37,7 @@ protected:
 	short _cooldown = 5;						// delay between 2 casts
 
 public:
-	virtual TempModifier* Cast(Hero& target) { _timer = _cooldown; return nullptr; };
+	virtual bool Cast(Hero& target) { _timer = _cooldown; return false; };
 	void EndTurn() { _timer--; };
 	int GetCode() { return -1; };
 	const char* GetName() { return _name.c_str(); };

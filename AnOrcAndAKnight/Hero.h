@@ -1,12 +1,13 @@
-// contain 
+// Class HeroClass (determine if the hero has a shield and Hero, describing hero objects
+
+#include "settings.h"
+
 #pragma once
 
-#include "Skill.h"
-
-#include <vector>
-#include <string>
-
 using namespace std;
+
+class Effect;
+class Skill;
 
 struct Stats {
 	Stats() {};
@@ -26,18 +27,21 @@ struct Stats {
 class HeroClass {
 public:
 	HeroClass() {};
-	HeroClass(const string& name, const string& weapon, bool shield, vector<int> listSkillsId);
+	HeroClass(const string& name, const string& weapon, vector<int> listSkillsId, const string& description);
 	~HeroClass() {};
 
 	HeroClass& operator=(const HeroClass& other);
 
 public:
+	string _description = "MISSING_DESCRIPTION";
 	string _name = "MISSING_CLASS_NAME";
 	string _weapon = "WEAPON";
-	bool _hasShield = false;
 	vector<int> _listSkillsId;				// name of the skills available for this class
 
 	static vector<HeroClass> _listClasses;
+
+public:
+	static void InitClasses();
 };
 
 class Hero
@@ -47,13 +51,11 @@ public:
 	Hero() {};
 	Hero(const HeroClass& heroClass, const string& name, const Stats& stats);
 	~Hero();
-	
-	Hero& operator=(const Hero&);
-
-	static vector<HeroClass*> _listeClass;
+	Hero& operator=(Hero&);
 
 	// attributes
 public:
+	bool _isLeft = false;
 	HeroClass _class = HeroClass();		// class of the hero (determine if he has shield, his weapon name and damages and what his skill is)
 	string _name = "MISSING_NAME";		// name of the hero
 	string _gameOver = "RIP";			// message displayed at the end when hero die
@@ -61,17 +63,20 @@ public:
 	int _stun = 0;						// stunned turns left, 0 = not stunned
 
 private:
-	vector<Skill*> _listSkills;		// skills instances, with their Cooldown
-	friend class TempModifier;
+	vector<Effect*> _listEffects;		// list of effects affecting the hero (damage's modifier, stun)
+	vector<Skill*> _listSkills;			// skills instances, with their Cooldown
 
 	// methods
 public:
 	void EndTurn();
+	void SetClass(const HeroClass& heroClass);
 	void Stun(int duration);
-	bool IsDead();
-	unsigned int GetDamages();
+	int GetDamages();
+	int GetNbEffects() { return (int)_listEffects.size(); };
+	string AddEffect(Effect* pEffect);
 	string RecieveDamages(int);
-	std::vector<Skill*> GetAvailableSkillsThisTurn();
+	string GetEffectDisplayText(int i);
 	const char* GetName() { return _name.c_str(); };
 	const char* GetWeaponName() { return _class._weapon.c_str(); };
+	vector<Skill*> GetAvailableSkillsThisTurn();
 };

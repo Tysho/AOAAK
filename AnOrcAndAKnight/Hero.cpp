@@ -1,10 +1,10 @@
 #include "Hero.h"
+#include "Settings.h"
 
+#include "Effect.h"
 #include "Skill.h"
 #include "UIManager.h"
 #include "ResourcesManager.h"
-#include <string>
-#include <iostream>
 
 #define LOG(str) cout << "\n\t"; cout << str;
 
@@ -13,38 +13,74 @@ using namespace std;
 #define _SHIELD _stats._currentShield
 #define _HP _stats._currentHP
 
-vector<HeroClass> HeroClass::_listClasses = {
-    HeroClass("Knight", "Sword", true, {CHARGE}),
-    HeroClass("Orc", "Axe", false, {STUN}),
-    HeroClass("Elf", "Longbow", false, {ARROW_KNEE})
-};
+#pragma region CLASS HEROCLASS
 
-HeroClass::HeroClass(const string& name, const string& weapon, bool shield, vector<int> listSkills) :
+vector<HeroClass> HeroClass::_listClasses = vector<HeroClass>();
+
+HeroClass::HeroClass(const string& name, const string& weapon, vector<int> listSkills, const string& description) :
     _name(name),
     _weapon(weapon),
-    _hasShield(shield)
+    _description(description)
 {
     for (int skillId : listSkills)
         _listSkillsId.push_back(skillId);
 };
 
+void HeroClass::InitClasses()
+{
+    _listClasses = {
+        HeroClass(GetT("KNIGHT"), GetT("KNIGHT_WEAPON"), { CHARGE }, GetT("KNIGHT_DESCRIPTION")),
+        HeroClass(GetT("ORC"), GetT("ORC_WEAPON"), { STUN }, GetT("ORC_DESCRIPTION")),
+        HeroClass(GetT("ELF"), GetT("ELF_WEAPON"), { ARROW_KNEE }, GetT("ELF_DESCRIPTION"))
+    };
+}
 
 HeroClass& HeroClass::operator=(const HeroClass& other)
 {
     _name = other._name;
     _weapon = other._weapon;
-    _hasShield = other._hasShield;
     _listSkillsId = other._listSkillsId;
 
     return *this;
 }
 
+#pragma endregion 
 
-unsigned int Hero::GetDamages()
+
+#pragma region CLASS HERO
+
+Hero::Hero(const HeroClass& heroClass, const string& name, const Stats& stats) :
+    _name(name),
+    _stats(stats)
 {
-    return _stats._damages;
+    _class = heroClass;
+    for (int skillId : _class._listSkillsId) {
+        Skill* pSkill = Skill::CreateSkillInstanceById(skillId);
+        _listSkills.push_back(pSkill);
+    }
 }
 
+Hero::~Hero()
+{
+    for (Skill* pSkill : _listSkills) {
+        if (pSkill)
+            delete pSkill;
+    }
+}
+
+Hero& Hero::operator=(Hero& other)
+{
+    _class = other._class;
+    _name = other._name;
+    _gameOver = other._gameOver;
+    _stats = other._stats;				// hp&shield, current and max values
+    _stun = other._stun;
+    _listSkills = other._listSkills;
+    _isLeft = other._isLeft;
+    return *this;
+}
+
+// update shield and hp according to damage recieved, return summary
 string Hero::RecieveDamages(int damages)
 {
     // no damages ? then nothing
@@ -72,75 +108,107 @@ string Hero::RecieveDamages(int damages)
     // no(more) shield -> damage to HP
     _HP -= damages;
     _HP = max(0, _HP);
-  
+
+    if (summary != "")
+        summary += "\n\t";
+
     string format = GetT("TAKES_DAMAGES");
-    summary += "\n\t" + Format(format, _name.c_str(), damages);
+    summary += Format(format, _name.c_str(), damages);
 
     return summary.c_str();
 }
 
+
+// return all skills for which the timer is to 0 (ready to be cast)
 vector<Skill*> Hero::GetAvailableSkillsThisTurn()
 {
     vector<Skill*> ret;
 
-    for (int i = 0; i < _listSkills.size(); i++) {
-        Skill* pSkill = _listSkills[i];
-
-        if (pSkill->_timer == 0)
-            ret.push_back(_listSkills[i]);
+    for (Skill* skill : _listSkills) {
+        if (skill->_timer == 0)
+            ret.push_back(skill);
     }
 
     return ret;
 }
 
-Hero::Hero(const HeroClass& heroClass, const string& name, const Stats& stats) :
-    _name(name),
-    _stats(stats)
-{
-    _class = heroClass;
-    for (int skillId : _class._listSkillsId) {
-        Skill* pSkill = Skill::CreateSkillInstanceById(skillId);
-        _listSkills.push_back(pSkill);
-    }
-}
 
-Hero::~Hero()
-{
-    for (Skill* pSkill : _listSkills) {
-        if (pSkill)
-            delete pSkill;
-    }
-}
-
-Hero& Hero::operator=(const Hero& other)
-{
-    _class = other._class;
-    _name = other._name;
-    _gameOver = other._gameOver;
-    _stats = other._stats;				// hp&shield, current and max values
-    _stun = other._stun;
-    _listSkills = other._listSkills;
-    return *this;
-}
-
+// End turn of the Hero : update skills cooldown and update effects, removing expired ones 
 void Hero::EndTurn()
 {
-    _stun--;
-    for (int i = 0; i < _listSkills.size(); i++) {
-        Skill* pSkill = _listSkills[i];
+    _stun = max(_stun - 1, 0);
+    for (Skill* pSkill : _listSkills)
         pSkill->EndTurn();
+
+    vector<Effect*> listExpired;
+    for (Effect* pEffect : _listEffects) {
+        if (pEffect->Update() > 0)
+            continue;
+
+        // expired
+        pEffect->Expire();
     }
+
+    // remove expired effects
+    auto expired = [](Effect* pE) {return pE->GetDurationLeft() == 0; };
+    _listEffects.erase(std::remove_if(_listEffects.begin(), _listEffects.end(), expired), _listEffects.end());
 }
 
+
+// stun the hero if not already stunned for a greater duration
 void Hero::Stun(int duration)
 {
     if (_stun < duration)
         _stun = duration;
 }
 
-bool Hero::IsDead()
-{
-    if (_stats._currentHP <= 0)
-        return true;
-    return false;
+
+// get damages dealt by the hero after all damages modifers are applied
+int Hero::GetDamages() {
+    int damages = _stats._damages;
+    for (Effect* pEffect : _listEffects) {
+        damages = (int)ceil(pEffect->GetDamageMultiplier() * damages);
+    }
+    return damages;
 }
+
+
+// add and effect to the hero, and trigger it 
+string Hero::AddEffect(Effect* pEffect)
+{
+    _listEffects.push_back(pEffect);
+    return pEffect->Affect();
+}
+
+
+// change the class of the hero, update all impacted values
+void Hero::SetClass(const HeroClass& heroClass)
+{
+    _class = heroClass;
+
+    // remove old skills
+    for (Skill* pSkill : _listSkills) {
+        if(pSkill)
+            delete pSkill;
+    }
+    _listSkills.clear();
+
+    // add new skills
+    for (int skillId : _class._listSkillsId) {
+        Skill* pSkill = Skill::CreateSkillInstanceById(skillId);
+        _listSkills.push_back(pSkill);
+    }
+}
+
+
+// return the text of an effect applied to the Hero with the remaining duration
+string Hero::GetEffectDisplayText(int i) 
+{
+    if (i >= _listEffects.size())
+        return "";
+
+    string format = GetT("SKILL_TURNS_LEFT");
+    return Format(format, _listEffects[i]->GetName(), _listEffects[i]->GetDurationLeft());
+}
+
+#pragma endregion 

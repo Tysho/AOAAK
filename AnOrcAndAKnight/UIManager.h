@@ -1,6 +1,8 @@
 // this is the class of the HMI : all display will be done there, as well as functions to get user keyboards entries.
 // it also contains an history off all consecutive sequences, and the methodes to navigate between.
 
+#include "Settings.h"
+
 #pragma once
 
 using namespace std;
@@ -47,18 +49,22 @@ private:
 public:
     static bool IsNumber(const string& s);
 
+    void SelectLanguage();
     void DisplayBattleEnd();
-    void DisplayBattleStart(const Hero&, const Hero&);
+    void DisplayBattleStart(Hero&, Hero&);
     void DisplayPreviousTurn(bool forceLastTurn = false);
-    void DrawNewTurn(const Hero&, const Hero&);
+    void DrawNewTurn(Hero&, Hero&);
     void LaunchEditForm(Hero&, int numHero);
     void LogSummary(const string&);
     void LogTurnCount(int);
-    void SelectHero(Hero&, int numHero);
+    void SelectHero(Hero&, int numHero, const string& firstHeroClass = "", const string& firstHeroName = "");
     bool DisplayNextTurn();
     bool AskUserYesNoQuestion(const string& questionKey);
+    string DisplayClassSelector(Hero&, int numHero);
     NextDisplay GetInputKeyForwardBackward();
     VerticalSelection GetInputKeyVerticalSelection();
 private:
-    string DrawStats(const Hero& left, const Hero& right);
+    string DrawStats(Hero& left, Hero& right);
 };
+
+inline static UIManager& UI() { return UIManager::GetInstance(); };

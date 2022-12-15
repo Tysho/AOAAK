@@ -1,11 +1,9 @@
+#include "UIManager.h"
+#include "Settings.h"
+
 #include "Hero.h"
 #include "ResourcesManager.h"
-#include "UIManager.h"
-
-#include <string>
-#include <vector>
-#include <conio.h>
-#include <iostream>
+#include "Effect.h"
 
 #define SCREEN_WIDTH 111
 
@@ -13,6 +11,34 @@
 
 void CleanScreen() { system("cls"); };
 
+// display selector with current selection highlighted
+string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", const string& firstHeroClass = "")
+{
+	string screen;
+
+	int curPosition = 0;
+	for (Hero* p : ResourcesManager::_listHeroes)
+	{
+		if (p->_name == firstHeroName && p->_class._name == firstHeroClass)
+		{
+			curPosition++;
+			continue;
+		}
+
+		if (curSelection == curPosition)
+			screen += "\t > [ " + p->_name + " (" + p->_class._name + ") ]\n\n";
+		else
+			screen += "\t" + p->_name + " (" + p->_class._name + ")\n\n";
+		curPosition++;
+	}
+
+	if (curSelection == curPosition)
+		screen += "\t > [ " + GetT("CUSTOM_HERO") + " ]\n\n";
+	else
+		screen += "\t" + GetT("CUSTOM_HERO") + "\n\n";
+	
+	return screen;
+}
 
 inline string ReadText(const string& screen) {
 	string s; 
@@ -24,7 +50,7 @@ inline string ReadText(const string& screen) {
 	return s; 
 };
 
-inline int ReadNumber(const string& screen) { 
+inline int ReadNumber(const string& screen, bool canBeZero = false) { 
 	string s; 
 	while (1) {
 		CleanScreen();
@@ -40,11 +66,11 @@ inline int ReadNumber(const string& screen) {
 		int val = atoi(s.c_str());
 		if (val > 0)
 			return val;
+		if (val == 0 && canBeZero)
+			return val;
 	}
 	return 1;
 };
-
-#pragma endregion
 
 // add an empty line with separator on the middle
 static string AddEmtpyLine() {
@@ -61,12 +87,10 @@ static string AddEmtpyLine() {
 	return display;
 }
 
+#pragma endregion
 
-/// <summary>
-/// Draw life or shield bar for both Heroes stats
-/// </summary>
-/// <param name="isHp"> : true=HP, false=shield </param>
-/// <returns>string containing the draw to display in cout</returns>
+
+// Draw life or shield bar for both Heroes stats
 string DrawBar(bool isHp, const Stats& left, const Stats& right)
 {
 	string result;
@@ -113,11 +137,7 @@ string DrawBar(bool isHp, const Stats& left, const Stats& right)
 }
 
 
-/// <summary>
-/// Get a line which display curValue / maxValue for both Heroes stats
-/// </summary>
-/// <param name="isHp"> : true=HP, false=shield </param>
-/// <returns>string containing the values to display in cout</returns>
+// Get a line which display curValue / maxValue for both Heroes stats
 string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 {
 	string dataType = isHp ? GetT("LIFE_POINT") : GetT("SHIELD");
@@ -150,6 +170,63 @@ string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 }
 
 
+// Get a line which display effects affecting the heroes (one call per effect for both)
+string DisplayEffect(const string& effectLeft, const string& effectRight)
+{
+	string result = effectLeft;
+	for (int i = (int)effectLeft.size(); i < SCREEN_WIDTH - (int)effectRight.size(); i++) {
+		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 > -1 for separator and -4 for left margin
+			result += "|";
+			i++;
+		}
+		result += " ";
+	}
+	result += effectRight + "\n";
+	return result;
+}
+
+
+// display form with selector to chose the language
+void UIManager::SelectLanguage()
+{
+	// get available languages
+	vector<string>&& listLang = ResourcesManager::GetAvailableLanguages();
+
+	// display selector
+	int curSelection = 0;
+	while (1) {
+		CleanScreen();
+		string screen = "\n\n";
+		int curPosition = 0;
+		for (string lang : listLang)
+		{
+			if (curSelection == curPosition)
+				screen += "\t > [ " + lang + " ]\n\n";
+			else
+				screen += "\t" + lang + "\n\n";
+			curPosition++;
+		}
+		cout << screen;
+
+		// get user input
+		switch (GetInputKeyVerticalSelection()) {
+		case VerticalSelection::DOWN:
+			curSelection++;
+			curSelection = min(curSelection, (int)listLang.size() - 1);
+			break;
+		case VerticalSelection::UP:
+			curSelection--;
+			curSelection = max(0, curSelection);
+			break;
+		case VerticalSelection::SELECT:
+			ResourcesManager::LoadLanguage(curSelection + 1);	// language id start at 1
+			return;
+		}
+	}
+}
+
+
+// Display the end screen for the first time
 void UIManager::DisplayBattleEnd()
 {
 	CleanScreen();
@@ -159,18 +236,22 @@ void UIManager::DisplayBattleEnd()
 	_summary = "";
 }
 
-void UIManager::DisplayBattleStart(const Hero& left, const Hero& right) {
+
+// First display of he battle
+void UIManager::DisplayBattleStart(Hero& left, Hero& right) {
 	LogSummary("\n\t\t" + GetT("BATTLE_BEGIN"));
 	DrawNewTurn(left, right);
 }
 
 
+// ad a line to the next battle resume
 void UIManager::LogSummary(const string& text)
 {
 	_summary += "\n\t" + text;
 }
 
 
+// display the turn count in the header
 void UIManager::LogTurnCount(int turn)
 {
 	string strTurn = to_string(turn);
@@ -181,40 +262,66 @@ void UIManager::LogTurnCount(int turn)
 	_header += "\n\t" + log;
 }
 
-void UIManager::SelectHero(Hero& hero, int numHero)
+
+// display a form to select a hero, the first hero picked is hidden if it's the second pick
+void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName, const string& firstHeroClass)
 {
 	int curSelection = 0;
+	
+	// title
+	string header;
+
+	// announce first champ selected
+	if (numHero > 1)
+		header += "\n\t" + Format(GetT("FIRST_HERO_PICKED"), firstHeroName.c_str(), firstHeroClass.c_str()) + "\n\n";
+	header += "\n" + Format(GetT("HERO_SELECT"), numHero) + "\n\n";
+	
+	// waiting for user choice
 	while (1) {
+		string screen = header + DisplayHeroSelector(curSelection, firstHeroName, firstHeroClass);
 		CleanScreen();
-		string screen = "\n" + Format(GetT("HERO_SELECT"), numHero) + "\n\n";
-		int curPosition = 0;
-		for (Hero* p : ResourcesManager::_listHeroes)
-		{
-			if (curSelection == curPosition)
-				screen += "\t > [ " + p->_name + " (" + p->_class._name + ") ]" + "\n\n";
-			else
-				screen += "\t" + p->_name + " (" + p->_class._name + ")\n\n";
-			curPosition++;
-		}
-
-		if (curSelection == curPosition)
-			screen += "\t > [ " + GetT("CUSTOM_HERO") + " ]" + "\n\n";
-		else 
-			screen += "\t" + GetT("CUSTOM_HERO") + "\n\n";
-
 		cout << screen;
 
 		switch (GetInputKeyVerticalSelection()) {
 		case VerticalSelection::DOWN:
+		{
 			curSelection++;
 			curSelection = min(curSelection, (int)ResourcesManager::_listHeroes.size());
-			break;
+			
+			// already at the end
+			if (curSelection == (int)ResourcesManager::_listHeroes.size())
+				break;
+
+			// if we fall on the already picked one, then we jump to the next one
+			Hero* pHero = ResourcesManager::_listHeroes[curSelection];
+			if (pHero->_name == firstHeroName && pHero->_class._name == firstHeroClass) {
+				curSelection++;
+
+				// no more next one ? we stay at the end
+				if (curSelection == (int)ResourcesManager::_listHeroes.size() + 1) // +1 because there is still custom hero creation button
+					curSelection -= 2;
+			}
+			curSelection = min(curSelection, (int)ResourcesManager::_listHeroes.size());
+		}
+		break;
 		case VerticalSelection::UP:
+		{
 			curSelection--;
 			curSelection = max(0, curSelection);
-			break;
+
+			// if we fall on the already picked one, then we jump to the next one
+			Hero* pHero = ResourcesManager::_listHeroes[curSelection];
+			if (pHero->_name == firstHeroName && pHero->_class._name == firstHeroClass) {
+				curSelection--;
+
+				// no more next one ? we stay at the beginning
+				if (curSelection < 0)
+					curSelection = 1;
+			}
+		}
+		break;
 		case VerticalSelection::SELECT:
-			if (curPosition == curSelection) {
+			if (curSelection == ResourcesManager::_listHeroes.size()) {
 				LaunchEditForm(hero, numHero);
 				CleanScreen();
 				return;
@@ -226,7 +333,8 @@ void UIManager::SelectHero(Hero& hero, int numHero)
 }
 
 
-string UIManager::DrawStats(const Hero& left, const Hero& right)
+// display hp/shield and effect of both champs
+string UIManager::DrawStats(Hero& left, Hero& right)
 {
 	string display = "\n\t";
 
@@ -263,11 +371,25 @@ string UIManager::DrawStats(const Hero& left, const Hero& right)
 		display += AddEmtpyLine();
 	}
 
+	// DISPLAY EFFECTS
+	int maxEffectsNb = max(left.GetNbEffects(), right.GetNbEffects());
+	for (int i = 0; i < maxEffectsNb; i++) {
+		string effectLeft = left.GetEffectDisplayText(i);
+		string effectRight = right.GetEffectDisplayText(i);
+		display += DisplayEffect(effectLeft, effectRight);
+
+		if (i + 1 < maxEffectsNb)
+			display += +"\t";
+	}
+
+	// SKILLS COOLDOWN
+
 	return display;
 }
 
 
-void UIManager::DrawNewTurn(const Hero& left, const Hero& right)
+// dipslay a calculated turn (using summary for battle details
+void UIManager::DrawNewTurn(Hero& left, Hero& right)
 {
 	_currentTurn++;
 	LogTurnCount(_currentTurn);
@@ -301,6 +423,8 @@ bool UIManager::DisplayNextTurn()
 	return true;
 }
 
+
+// static methode return true if the string is only numeric character ("-" and "./," not allowed)s
 bool UIManager::IsNumber(const string& s)
 {
 	std::string::const_iterator it = s.begin();
@@ -328,29 +452,84 @@ void UIManager::DisplayPreviousTurn(bool forceLastTurn)
 // Generate a form in the cout to collect caracteristics for both Heroes from user
 void UIManager::LaunchEditForm(Hero& hero, int heroNumber)
 {
-	CleanScreen();
-	string screen = "\n" + Format(GetT("HERO_EDIT"), heroNumber) +"\n\n";
+	// user select the class of the hero
+	string screen = DisplayClassSelector(hero, heroNumber);
 
-	screen += Format(GetT("HERO_NAME"), hero.GetName());
+	CleanScreen();
+	cout << screen;
+
+	screen += "\n\n\t"+ Format(GetT("HERO_NAME"), hero.GetName());
 	hero._name = ReadText(screen);
 	screen += " " + hero._name;
 
-	screen += "\n\n" + Format(GetT("HERO_HP"), hero.GetName());
+	screen += "\n\n\t" + Format(GetT("HERO_HP"), hero.GetName());
 	hero._stats._currentHP = hero._stats._maxHP = ReadNumber(screen);
 	screen += " " + to_string(hero._stats._currentHP);
 
-	screen += "\n\n" + Format(GetT("HERO_SHIELD"), hero.GetName());
-	hero._stats._currentShield = hero._stats._maxShield = ReadNumber(screen);
+	screen += "\n\n\t" + Format(GetT("HERO_SHIELD"), hero.GetName());
+	hero._stats._currentShield = hero._stats._maxShield = ReadNumber(screen, true); // can be zero
 	screen += " " + to_string(hero._stats._currentShield);
 
-	screen += "\n\n" + Format(GetT("HERO_WEAPON_NAME"), hero.GetName());
-	hero._class._name = ReadText(screen);
-	screen += " " + hero._class._name;
+	screen += "\n\n\t" + Format(GetT("HERO_WEAPON_NAME"), hero.GetName());
+	hero._class._weapon = ReadText(screen);
+	screen += " " + hero._class._weapon;
 
-	screen += "\n\n" + Format(GetT("HERO_WEAPON_DAMAGES"), hero.GetWeaponName());
+	screen += "\n\n\t" + Format(GetT("HERO_WEAPON_DAMAGES"), hero.GetWeaponName());
 	hero._stats._damages = ReadNumber(screen);
 
 	CleanScreen();
+}
+
+
+// allow the user to pick a class for his custom hero, return the beginning of the form for next steps
+string UIManager::DisplayClassSelector(Hero& hero, int numHero)
+{
+	CleanScreen();
+	string header = "\n" + Format(GetT("HERO_EDIT"), numHero) + "\n\n";
+
+	int curSelection = 0;
+
+	// display selector
+	while (1) {
+		string screen = header;
+		int curPosition = 0;
+		string classDescription;
+
+		// display each class, highlighting the current selection
+		for (HeroClass& hc : HeroClass::_listClasses)
+		{
+			if (curSelection == curPosition) {
+				classDescription = hc._description;
+				screen += "\t > [ " + hc._name + " ]\n\n";
+			}
+			else
+				screen += "\t" + hc._name + "\n\n";
+			curPosition++;
+		}
+		screen += "\n\t" + classDescription;
+
+		// display a resume of the class under the selector
+
+		CleanScreen();
+		cout << screen;
+
+		// get user input
+		switch (GetInputKeyVerticalSelection()) {
+		case VerticalSelection::DOWN:
+			curSelection++;
+			curSelection = min(curSelection, (int)HeroClass::_listClasses.size() - 1);
+			break;
+		case VerticalSelection::UP:
+			curSelection--;
+			curSelection = max(0, curSelection);
+			break;
+		case VerticalSelection::SELECT:
+			hero.SetClass(HeroClass::_listClasses[curSelection]);
+
+			header += "\t" + GetT("HERO_CLASS") + hero._class._name;
+			return header;
+		}
+	}
 }
 
 // Get question linked to questionKey, display it to user and return answer
@@ -374,6 +553,7 @@ bool UIManager::AskUserYesNoQuestion(const string& questionKey) {
 }
 
 
+// wait for a top/left or bottom/right key entry by the user and return the direction for next display
 NextDisplay UIManager::GetInputKeyForwardBackward()
 {
 	while (1) {
@@ -396,6 +576,8 @@ NextDisplay UIManager::GetInputKeyForwardBackward()
 	}
 }
 
+
+// wait for an entry from user : left, right, or enter only; used for selectors (languages, heroes, class for custom hero)
 VerticalSelection UIManager::GetInputKeyVerticalSelection() {
 	while (1) {
 		int key = _getch();

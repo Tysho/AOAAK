@@ -116,6 +116,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>Settings.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,6 +133,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeaderFile>Settings.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,15 +150,17 @@
     <ClCompile Include="Battle.cpp" />
     <ClCompile Include="ResourcesManager.cpp" />
     <ClCompile Include="Skill.cpp" />
-    <ClCompile Include="TempModifier.cpp" />
+    <ClCompile Include="Effect.cpp" />
+    <ClCompile Include="Settings.cpp" />
     <ClCompile Include="UIManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Settings.h" />
     <ClInclude Include="Hero.h" />
     <ClInclude Include="Battle.h" />
     <ClInclude Include="ResourcesManager.h" />
     <ClInclude Include="Skill.h" />
-    <ClInclude Include="TempModifier.h" />
+    <ClInclude Include="Effect.h" />
     <ClInclude Include="UIManager.h" />
   </ItemGroup>
   <ItemGroup>
