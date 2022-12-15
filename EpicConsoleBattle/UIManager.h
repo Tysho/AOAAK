@@ -50,6 +50,7 @@ public:
     static bool IsNumber(const string& s);
 
     void SelectLanguage();
+    void SetupConsoleSize();
     void DisplayBattleEnd();
     void DisplayBattleStart(Hero&, Hero&);
     void DisplayPreviousTurn(bool forceLastTurn = false);

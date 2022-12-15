@@ -30,6 +30,7 @@ void SelectHeroes(Hero& hero1, Hero& hero2) {
 
 int main()
 {
+    UI().SetupConsoleSize();
     UI().SelectLanguage();
 
     Init();

@@ -204,7 +204,7 @@ void Hero::SetClass(const HeroClass& heroClass)
 // return the text of an effect applied to the Hero with the remaining duration
 string Hero::GetEffectDisplayText(int i) 
 {
-    if (i >= _listEffects.size())
+    if (i >= (int)_listEffects.size())
         return "";
 
     string format = GetT("SKILL_TURNS_LEFT");

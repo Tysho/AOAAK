@@ -11,6 +11,10 @@
 #include <windows.h> // for CharToOemA
 
 using namespace std;
+#define WINDOW_X 100
+#define WINDOW_Y 180
+#define WINDOW_WIDTH 1000
+#define WINDOW_HEIGHT 700
 
 // default Hero Classes are defined in Hero.cpp
 

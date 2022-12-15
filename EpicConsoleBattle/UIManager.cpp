@@ -9,7 +9,9 @@
 
 #pragma region Inline fct tools
 
+// clear console
 void CleanScreen() { system("cls"); };
+
 
 // display selector with current selection highlighted
 string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", const string& firstHeroClass = "")
@@ -40,6 +42,8 @@ string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", 
 	return screen;
 }
 
+
+// display screen while user don't tape text then enter
 inline string ReadText(const string& screen) {
 	string s; 
 	do {
@@ -50,6 +54,8 @@ inline string ReadText(const string& screen) {
 	return s; 
 };
 
+
+// display screen while user don't enter a integer value
 inline int ReadNumber(const string& screen, bool canBeZero = false) { 
 	string s; 
 	while (1) {
@@ -72,6 +78,7 @@ inline int ReadNumber(const string& screen, bool canBeZero = false) {
 	return 1;
 };
 
+
 // add an empty line with separator on the middle
 static string AddEmtpyLine() {
 	string display = "\t";
@@ -87,11 +94,9 @@ static string AddEmtpyLine() {
 	return display;
 }
 
-#pragma endregion
-
 
 // Draw life or shield bar for both Heroes stats
-string DrawBar(bool isHp, const Stats& left, const Stats& right)
+inline string DrawBar(bool isHp, const Stats& left, const Stats& right)
 {
 	string result;
 
@@ -138,7 +143,7 @@ string DrawBar(bool isHp, const Stats& left, const Stats& right)
 
 
 // Get a line which display curValue / maxValue for both Heroes stats
-string DisplayValue(bool isHp, const Stats& left, const Stats& right)
+inline string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 {
 	string dataType = isHp ? GetT("LIFE_POINT") : GetT("SHIELD");
 	int leftCur = isHp ? left._currentHP : left._currentShield;
@@ -157,7 +162,7 @@ string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 		rightHpCounter = "";
 
 	string result = leftHpCounter;
-	for (int i = (int)leftHpCounter.size(); i < SCREEN_WIDTH - rightHpCounter.size() - 4; i++) {
+	for (int i = (int)leftHpCounter.size(); i < SCREEN_WIDTH - (int)rightHpCounter.size() - 4; i++) {
 		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 > -1 for separator and -4 for left margin
 			result += "|";
 			i++;
@@ -171,7 +176,7 @@ string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 
 
 // Get a line which display effects affecting the heroes (one call per effect for both)
-string DisplayEffect(const string& effectLeft, const string& effectRight)
+inline string DisplayEffect(const string& effectLeft, const string& effectRight)
 {
 	string result = effectLeft;
 	for (int i = (int)effectLeft.size(); i < SCREEN_WIDTH - (int)effectRight.size(); i++) {
@@ -184,6 +189,33 @@ string DisplayEffect(const string& effectLeft, const string& effectRight)
 	result += effectRight + "\n";
 	return result;
 }
+
+
+// resize screen buffer to match console window size to avoid scrollbar
+inline void RemoveScrollbars() 
+{
+	HANDLE handleConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	// retrieve screen buffer info
+	CONSOLE_SCREEN_BUFFER_INFO scrBufferInfo;
+	GetConsoleScreenBufferInfo(handleConsole, &scrBufferInfo);
+
+	// current window size
+	short winWidth = scrBufferInfo.srWindow.Right - scrBufferInfo.srWindow.Left + 1;
+	short winHeight = scrBufferInfo.srWindow.Bottom - scrBufferInfo.srWindow.Top + 1;
+
+	// current screen buffer size
+	short scrBufferWidth = scrBufferInfo.dwSize.X;
+	short scrBufferHeight = scrBufferInfo.dwSize.Y;
+
+	// to remove the scrollbar the window height must match the screen buffer height
+	COORD newSize{ scrBufferWidth, winHeight };
+
+	// set new screen buffer dimensions
+	SetConsoleScreenBufferSize(handleConsole, newSize);
+}
+
+#pragma endregion
 
 
 // display form with selector to chose the language
@@ -223,6 +255,14 @@ void UIManager::SelectLanguage()
 			return;
 		}
 	}
+}
+
+void UIManager::SetupConsoleSize()
+{
+	// set windows pos and size
+	HWND console = GetConsoleWindow();
+	MoveWindow(console, WINDOW_X, WINDOW_Y, WINDOW_WIDTH, WINDOW_HEIGHT, TRUE);
+	RemoveScrollbars();
 }
 
 
@@ -413,8 +453,8 @@ void UIManager::DrawNewTurn(Hero& left, Hero& right)
 // display next turn ONLY if it was already generated, return false otherwise
 bool UIManager::DisplayNextTurn()
 {
-	// already on the last calculated battle scene
-	if (_currentTurn >= _history.size() - 1)
+	// already on the last history frame, need to play another turn
+	if (_currentTurn >= (int)_history.size() - 1)
 		return false;
 
 	CleanScreen();
@@ -424,7 +464,7 @@ bool UIManager::DisplayNextTurn()
 }
 
 
-// static methode return true if the string is only numeric character ("-" and "./," not allowed)s
+// static methode return true if the string contains only numeric characters ("-" and "./," not allowed)
 bool UIManager::IsNumber(const string& s)
 {
 	std::string::const_iterator it = s.begin();
