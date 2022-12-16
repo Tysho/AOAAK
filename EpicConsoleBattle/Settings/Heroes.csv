@@ -1,4 +1,4 @@
-Class;Name;HP;Shield;Weapon_damages;Lose_message
-KNIGHT;Lord Belmesh;20;50;5; won't see another day...
-ORC;Gromek;60;0;8; won't kiss his chubby green childs tonight...
-ELF;Lass Lego;40;0;10; lost his way out of the wood
+Class;Name;HP;Shield;Weapon_damages
+KNIGHT;Lord Belmesh;20;50;5
+ORC;Gromek;60;0;8
+ELF;Lass Lego;40;0;10

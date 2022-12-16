@@ -157,11 +157,7 @@ bool ResourcesManager::LoadHeroes()
         else
             damages = atoi(tokens[4].c_str());
 
-        // HERO'S DEFEAT MESSAGE
-        string gameOver = tokens[5];
-
         Hero* pHero = new Hero(heroClass, name, Stats(damages, hp, shield));
-        pHero->_gameOver = gameOver;
         _listHeroes.push_back(pHero);
     }
 

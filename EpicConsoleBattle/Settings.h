@@ -27,7 +27,7 @@ using namespace std;
 // accuracy are in %
 
 #define STUN_DURATION 1
-#define STUN_ACCURACY 20
+#define STUN_ACCURACY 100
 #define STUN_COOLDOWN 5
 
 #define CHARGE_DAMAGE_MULTIPLIER 2

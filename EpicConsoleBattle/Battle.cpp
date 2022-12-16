@@ -72,7 +72,7 @@ void Battle::PlayTurn()
 
     // hero1 attacks
     if (_hero1._stun > 0) {
-        log = Format(GetT("STUNNED_THIS_TURN"), _hero1.GetName(), _hero1._stun);
+        log = Format(GetT("STUNNED_THIS_TURN"), _hero1.GetName());
         UI().LogSummary(log);
     }
     else {
@@ -86,7 +86,7 @@ void Battle::PlayTurn()
 
     // orc attacks
     if (_hero2._stun > 0) {
-        log = Format(GetT("STUNNED_THIS_TURN"), _hero2.GetName(), _hero2._stun);
+        log = Format(GetT("STUNNED_THIS_TURN"), _hero2.GetName());
         UI().LogSummary(log);
     }
     else {

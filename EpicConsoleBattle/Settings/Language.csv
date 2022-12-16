@@ -19,7 +19,7 @@ ATTACK;%s attaque %s avec son arme "%s" !;%s attacks %s with his %s !
 SHIELD_BLOCK;\t%s bloque adroitement le coup avec son bouclier !;\t%s skillfully blocked the hit with his shield !"
 SHIELD_DESTROYED;Le bouclier de %s vole en éclat ! ça lui fait une belle jambe...;The shield of %s explodes ! No more shield :(
 TAKES_DAMAGES;\t%s subit %d dégâts !!!;\t%s recieved %d damages !!!
-STUNNED_THIS_TURN;%s est sonné pour ce tour et ne peux pas attaquer ! (%d tour(s) restant(s);%s is stunned this turn !(%d turn(s) left)"
+STUNNED_THIS_TURN;%s est sonné pour ce tour et ne peux pas attaquer !;%s cannot attack : he is stunned this turn !"
 USES_SKILL;%s utilise sa compétence "%s";%s uses his skill "%s"
 USES_SKILL_ON;%s utilise sa compétence "%s" sur %s;%s uses his skill "%s" on %s
 STUNNED;%s est assomé par la violence du coup !;%s got stunned !"

@@ -58,7 +58,6 @@ public:
 	bool _isLeft = false;
 	HeroClass _class = HeroClass();		// class of the hero (determine if he has shield, his weapon name and damages and what his skill is)
 	string _name = "MISSING_NAME";		// name of the hero
-	string _gameOver = "RIP";			// message displayed at the end when hero die
 	Stats _stats = Stats();				// damages, hp and shield of the hero, current and max values for each
 	int _stun = 0;						// stunned turns left, 0 = not stunned
 
@@ -72,7 +71,7 @@ public:
 	void SetClass(const HeroClass& heroClass);
 	void Stun(int duration);
 	int GetDamages();
-	int GetNbEffects() { return (int)_listEffects.size(); };
+	int GetNbEffects();
 	int GetNbSkills() { return (int)_listSkills.size(); };
 	string AddEffect(Effect* pEffect);
 	string RecieveDamages(int);

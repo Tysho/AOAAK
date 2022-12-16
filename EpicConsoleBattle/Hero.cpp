@@ -72,7 +72,6 @@ Hero& Hero::operator=(Hero& other)
 {
     _class = other._class;
     _name = other._name;
-    _gameOver = other._gameOver;
     _stats = other._stats;				// hp&shield, current and max values
     _stun = other._stun;
     _listSkills = other._listSkills;
@@ -172,6 +171,13 @@ int Hero::GetDamages() {
     return damages;
 }
 
+int Hero::GetNbEffects()
+{ 
+    int nbEffects = _stun > 0 ? 1 : 0;
+    nbEffects += (int)_listEffects.size();
+    return nbEffects;
+}
+
 
 // add and effect to the hero, and trigger it 
 string Hero::AddEffect(Effect* pEffect)
@@ -204,6 +210,20 @@ void Hero::SetClass(const HeroClass& heroClass)
 // return the text of an effect applied to the Hero with the remaining duration
 string Hero::GetEffectDisplayText(int i) 
 {
+    // Stun effect
+    if (_stun > 0 && i == 0) {
+        string result = "Stun";
+        string turn = " ";
+        turn += char(219);
+        for (int i = 0; i < _stun; i++)
+            result += turn;
+        return result;
+    }
+
+    // taking account that stun was displayed with i=0
+    if (_stun > 0)
+        i--;
+
     if (i >= (int)_listEffects.size())
         return "";
 
