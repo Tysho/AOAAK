@@ -24,7 +24,7 @@ public:
 template<typename ... Args>
 inline static string Format(const string& fmt, Args... args)
 {
-	size_t bufferSize = 1000;
+	size_t bufferSize = 10000;
 	char* buffer = new char[bufferSize];
 	int n = snprintf(buffer, bufferSize, fmt.c_str(), args...);
 	_ASSERT(n >= 0 and n < (int)bufferSize - 1 && "check fmt_str output");

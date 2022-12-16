@@ -207,8 +207,17 @@ string Hero::GetEffectDisplayText(int i)
     if (i >= (int)_listEffects.size())
         return "";
 
-    string format = GetT("SKILL_TURNS_LEFT");
-    return Format(format, _listEffects[i]->GetName(), _listEffects[i]->GetDurationLeft());
+    string result = _listEffects[i]->GetResume();
+    return result;
+}
+
+string Hero::GetSkillDisplayText(int i)
+{
+    if (i >= (int)_listSkills.size())
+        return "";
+
+    string result = _listSkills[i]->GetResume();
+    return result;
 }
 
 #pragma endregion 

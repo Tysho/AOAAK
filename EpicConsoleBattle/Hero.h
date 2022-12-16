@@ -73,9 +73,11 @@ public:
 	void Stun(int duration);
 	int GetDamages();
 	int GetNbEffects() { return (int)_listEffects.size(); };
+	int GetNbSkills() { return (int)_listSkills.size(); };
 	string AddEffect(Effect* pEffect);
 	string RecieveDamages(int);
 	string GetEffectDisplayText(int i);
+	string GetSkillDisplayText(int i);
 	const char* GetName() { return _name.c_str(); };
 	const char* GetWeaponName() { return _class._weapon.c_str(); };
 	vector<Skill*> GetAvailableSkillsThisTurn();

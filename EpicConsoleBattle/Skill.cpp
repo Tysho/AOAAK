@@ -8,6 +8,20 @@
 
 #define LOG(str) cout << "\n\t"; cout << str;
 
+string Skill::GetResume()
+{
+    string resume = _name;
+    string empty = " ", plain = " ";
+    empty += char(176);
+    plain += char(219);
+    for (int k = 0; k < _cooldown - _timer; k++)
+        resume += plain;
+    for (int k = _cooldown - _timer; k < _cooldown; k++)
+        resume += empty;
+
+    return resume;
+}
+
 // static function declaration
 Skill* Skill::CreateSkillInstanceById(int idSkill) {
     switch (idSkill) {

@@ -12,12 +12,12 @@
 
 using namespace std;
 #define WINDOW_X 100
-#define WINDOW_Y 180
+#define WINDOW_Y 80
 #define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 700
+#define WINDOW_HEIGHT 800
 
 #define SCREEN_WIDTH 111
-#define NB_LINES_DISPLAYABLE_IN_CONSOLE 40
+#define NB_LINES_DISPLAYABLE_IN_CONSOLE 46
 
 // default Hero Classes are defined in Hero.cpp
 

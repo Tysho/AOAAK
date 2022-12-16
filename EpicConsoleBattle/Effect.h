@@ -10,9 +10,7 @@ class Effect {
 public:
 	Effect(string name, Hero& target, short duration) : _name(name), _target(target), _duration(duration) {};
 	~Effect() {};
-
-public:
-
+	
 protected:
 	short _duration;
 	string _name;
@@ -26,7 +24,7 @@ public:
 
 	// overridable
 	virtual float GetDamageMultiplier() { return 1; };
-	
+	virtual string GetResume();
 	short Update();
 	int GetDurationLeft() { return _duration; };
 	const char* GetName() { return _name.c_str(); };

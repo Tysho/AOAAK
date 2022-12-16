@@ -53,6 +53,7 @@ public:
     void SetupConsoleSize();
     void DisplayBattleEnd();
     void DisplayBattleStart(Hero&, Hero&);
+    void PrepareGameOverScreen(Hero&, Hero&);
     void DisplayPreviousTurn(bool forceLastTurn = false);
     void DrawNewTurn(Hero&, Hero&);
     void LaunchEditForm(Hero&, int numHero);

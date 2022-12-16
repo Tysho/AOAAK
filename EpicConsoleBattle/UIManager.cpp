@@ -5,7 +5,12 @@
 #include "ResourcesManager.h"
 #include "Effect.h"
 
-
+enum class SeparatorType {
+	NONE,
+	BEGINNING,
+	MIDDLE,
+	END
+};
 enum class InstructionType {
 	NAVIGATE,
 	FORM_SELECT
@@ -19,13 +24,13 @@ inline void CleanScreen() { system("cls"); };
 // count number of line in a string (=number of "\t"
 inline int GetNbLines(const string& s)
 {
-	 int nbLines = std::count(s.begin(), s.end(), '\n') + 1; 
-	 return nbLines;
+	int nbLines = std::count(s.begin(), s.end(), '\n') + 1;
+	return nbLines;
 }
 
 
 // create a string with empty line until the bottom of the screen, considering the string starts at the very first line)
-inline string AddEmptyLinesUntilBottomScreen(const string& s, int stopBefore = 1) 
+inline string AddEmptyLinesUntilBottomScreen(const string& s, int stopBefore = 1)
 {
 	string temp = s;
 	int nbLines = GetNbLines(s);
@@ -35,6 +40,7 @@ inline string AddEmptyLinesUntilBottomScreen(const string& s, int stopBefore = 1
 	}
 	return temp;
 }
+
 
 // display selector with current selection highlighted
 inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", const string& firstHeroClass = "")
@@ -63,26 +69,26 @@ inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName
 		screen += "\t > [ " + GetT("CUSTOM_HERO") + " ]\n\n";
 	else
 		screen += "\t" + GetT("CUSTOM_HERO") + "\n\n";
-	
+
 	return screen;
 }
 
 
 // display screen while user don't tape text then enter
 inline string ReadText(const string& screen) {
-	string s; 
+	string s;
 	do {
 		CleanScreen();
 		cout << screen;
 		getline(cin, s);
-	} while (s == ""); 
-	return s; 
+	} while (s == "");
+	return s;
 };
 
 
 // display screen while user don't enter a integer value
-inline int ReadNumber(const string& screen, bool canBeZero = false) { 
-	string s; 
+inline int ReadNumber(const string& screen, bool canBeZero = false) {
+	string s;
 	while (1) {
 		CleanScreen();
 		cout << screen;
@@ -105,17 +111,29 @@ inline int ReadNumber(const string& screen, bool canBeZero = false) {
 
 
 // add an empty line with separator on the middle
-static string AddEmtpyLine() {
-	string display = "\t";
+static string AddEmtpyLine(SeparatorType separator = SeparatorType::NONE)
+{
+	string display;
+
+	if (separator == SeparatorType::MIDDLE || separator == SeparatorType::END)
+		display = AddEmtpyLine();
+	else
+		display = "\t";
+
+	string c = separator != SeparatorType::NONE ? "*" : " ";
 	for (int i = 0; i < SCREEN_WIDTH - 1; i++) {
 		if (i == (SCREEN_WIDTH - 5) / 2) { // -5 > -4 for left margin and -1 for separator
 			display += "|";
 			i++;
 		}
-		display += " ";
+		display += c;
 	}
-	display += "\n\t";
-	
+
+	if (separator == SeparatorType::MIDDLE || separator == SeparatorType::BEGINNING)
+		display += "\n" + AddEmtpyLine();
+	else
+		display += "\n\t";
+
 	return display;
 }
 
@@ -188,24 +206,24 @@ inline string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 
 	string result = leftHpCounter;
 	for (int i = (int)leftHpCounter.size(); i < SCREEN_WIDTH - (int)rightHpCounter.size() - 4; i++) {
-		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 > -1 for separator and -4 for left margin
+		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 = -1 for separator and -4 for left margin
 			result += "|";
 			i++;
 		}
 		result += " ";
 	}
 	result += rightHpCounter + "\n";
-	
+
 	return result;
 }
 
 
 // Get a line which display effects affecting the heroes (one call per effect for both)
-inline string DisplayEffect(const string& effectLeft, const string& effectRight)
+inline string DisplayEffectOrSkill(const string& effectLeft, const string& effectRight)
 {
 	string result = effectLeft;
-	for (int i = (int)effectLeft.size(); i < SCREEN_WIDTH - (int)effectRight.size(); i++) {
-		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 > -1 for separator and -4 for left margin
+	for (int i = (int)effectLeft.size(); i < SCREEN_WIDTH - (int)effectRight.size() - 4; i++) {
+		if (i == (SCREEN_WIDTH - 5) / 2) {	// -5 = -1 for separator and -4 for left margin
 			result += "|";
 			i++;
 		}
@@ -217,7 +235,7 @@ inline string DisplayEffect(const string& effectLeft, const string& effectRight)
 
 
 // resize screen buffer to match console window size to avoid scrollbar
-inline void RemoveScrollbars() 
+inline void RemoveScrollbars()
 {
 	HANDLE handleConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -258,6 +276,61 @@ inline string DisplayInstructions(InstructionType type) {
 		return "";
 	}
 }
+
+
+// prepare the name to be written on a tombstone (fit and center it in a 39-characters string)
+string CarveNameToTombstone(string name) 
+{
+	// name too long ? we cut
+	if (name.size() >= 39)
+		name = name.substr(0, 35) + "...";
+	else {
+		// we center the name in the 39-character-wide space
+		int nbEmptySpace = 39 - (int)name.size();
+		for (int i = 0; i < nbEmptySpace / 2; i++)
+			name = " " + name;
+		while (name.size() < 39)
+			name += " ";
+	}
+	return name;
+}
+
+
+// cut a string between separator substring
+vector<string> SplitString(string source, const string& separator)
+{
+	vector<string> result;
+
+	size_t pos = 0;
+	string token;
+	while ((pos = source.find(separator)) != string::npos) {
+		token = source.substr(0, pos);
+		result.push_back(token);
+		source.erase(0, pos + separator.length());
+	}
+	result.push_back(source);
+	return result;
+}
+
+// from two multiline string (ascii art), we made one with the two image side to side
+string MergeTombstone(const string& ts1, const string& ts2) {
+	vector<string>&& listLines1 = SplitString(ts1, "\n");
+	vector<string>&& listLines2 = SplitString(ts2, "\n");
+
+	string twoTombstone = "\n";
+	for (int i = 0; i < (int)listLines1.size(); i++) {
+		// draw line of left tombstone
+		twoTombstone += listLines1[i];
+		
+		// go to the position of the second ascii image (70 char from left border)
+		for (int j = listLines1[i].size(); j < 60; j++)
+			twoTombstone += " ";
+		
+		// draw line of right tombstone
+		twoTombstone += listLines2[i] + "\n";
+	}
+	return twoTombstone;
+}
 #pragma endregion
 
 
@@ -266,10 +339,10 @@ void UIManager::SelectLanguage()
 {
 	// get available languages
 	vector<string>&& listLang = ResourcesManager::GetListAvailableLanguages();
-	
+
 	// stocking current selected language to display instructions properly
-	string curLanguage = ""; 
-	
+	string curLanguage = "";
+
 	// display selector
 	int curSelection = 0;
 
@@ -277,7 +350,7 @@ void UIManager::SelectLanguage()
 	string arrowUp, arrowDown;
 	arrowUp += char(30);
 	arrowDown += char(31);
-	
+
 	while (1) {
 		CleanScreen();
 		string screen = DrawNiceLine() + "\n\n";
@@ -336,7 +409,7 @@ void UIManager::DisplayBattleEnd()
 	CleanScreen();
 	_summary = DrawNiceLine() + "\n\n" + _summary;
 	_summary = AddEmptyLinesUntilBottomScreen(_summary) + "\n" + DrawNiceLine();
-	cout << _summary;	
+	cout << _summary;
 	_history.push_back(_summary);
 	_currentTurn = int(_history.size() - 1);
 	_summary = "";
@@ -347,6 +420,30 @@ void UIManager::DisplayBattleEnd()
 void UIManager::DisplayBattleStart(Hero& left, Hero& right) {
 	LogSummary("\n\t\t" + GetT("BATTLE_BEGIN"));
 	DrawNewTurn(left, right);
+}
+
+void UIManager::PrepareGameOverScreen(Hero& hero1, Hero& hero2)
+{
+	string tombstone1, tombstone2;
+
+	if (hero1._stats._currentHP == 0) {
+		string name = CarveNameToTombstone(hero1._name);
+		tombstone1 = Format(GetT("GAME_OVER"), name.c_str());
+	}
+
+	if (hero2._stats._currentHP == 0){
+		string name = CarveNameToTombstone(hero2._name);
+		tombstone2 = Format(GetT("GAME_OVER"), name.c_str());
+	}
+
+	if (tombstone1.size() > 0 && tombstone2.size() > 0) {
+		string twoTombstones = MergeTombstone(tombstone1, tombstone2);
+		UI().LogSummary(twoTombstones);
+	}
+	else
+		UI().LogSummary(tombstone1 + tombstone2);
+
+	UI().LogSummary("\n\n\t\t" + GetT("END"));
 }
 
 
@@ -373,7 +470,7 @@ void UIManager::LogTurnCount(int turn)
 void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName, const string& firstHeroClass)
 {
 	int curSelection = 0;
-	
+
 	// title
 	string header = DrawNiceLine() + "\n";
 
@@ -381,7 +478,7 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 	if (numHero > 1)
 		header += "\n\t" + Format(GetT("FIRST_HERO_PICKED"), firstHeroName.c_str(), firstHeroClass.c_str()) + "\n\n";
 	header += "\n" + Format(GetT("HERO_SELECT"), numHero) + "\n\n";
-	
+
 	// waiting for user choice
 	while (1) {
 		string screen = header + DisplayHeroSelector(curSelection, firstHeroName, firstHeroClass);
@@ -399,7 +496,7 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 		{
 			curSelection++;
 			curSelection = min(curSelection, (int)ResourcesManager::_listHeroes.size());
-			
+
 			// already at the end
 			if (curSelection == (int)ResourcesManager::_listHeroes.size())
 				break;
@@ -461,15 +558,15 @@ string UIManager::DrawNiceLine()
 // display hp/shield and effect of both champs
 string UIManager::DrawStats(Hero& left, Hero& right)
 {
-	string display = "\n\t";
+	string display = AddEmtpyLine(SeparatorType::BEGINNING);
 
 	// names of the Heroes
 	display += left._name;
 
-	int begin = (int)left._name.size(); 
+	int begin = (int)left._name.size();
 	int end = SCREEN_WIDTH - (int)right._name.size() - 4; // 4 because of first tab
 	for (int i = begin; i < end; i++) {
-		if (i == (SCREEN_WIDTH - 5) /2) {
+		if (i == (SCREEN_WIDTH - 5) / 2) {
 			display += "|";
 			i++;
 		}
@@ -488,26 +585,44 @@ string UIManager::DrawStats(Hero& left, Hero& right)
 
 	// SHIELD BARS
 	string shieldsDraw = DrawBar(false, left._stats, right._stats);
-	
+
 	// SHIELDS VALUES
 	if (shieldsDraw != "") {
 		display += shieldsDraw;
 		display += DisplayValue(false, left._stats, right._stats);
-		display += AddEmtpyLine();
+		display += AddEmtpyLine(SeparatorType::MIDDLE);
+	} else
+		display += AddEmtpyLine(SeparatorType::MIDDLE);
+
+	// SKILLS COOLDOWN
+	int maxSkillsNb = max(left.GetNbSkills(), right.GetNbSkills());
+	int maxEffectsNb = max(left.GetNbEffects(), right.GetNbEffects());
+	for (int i = 0; i < maxSkillsNb; i++) {
+		string skillLeft = left.GetSkillDisplayText(i);
+		string skillRight = right.GetSkillDisplayText(i);
+		display += DisplayEffectOrSkill(skillLeft, skillRight);
+
+		// add tab for next skill line, or empty line if over to separate
+		if (i + 1 == maxSkillsNb && maxEffectsNb > 0)
+			display += AddEmtpyLine(SeparatorType::MIDDLE);
+		else if(maxEffectsNb == 0)
+			display += AddEmtpyLine(SeparatorType::END);
+		else
+			display += "\t";
 	}
 
 	// DISPLAY EFFECTS
-	int maxEffectsNb = max(left.GetNbEffects(), right.GetNbEffects());
 	for (int i = 0; i < maxEffectsNb; i++) {
 		string effectLeft = left.GetEffectDisplayText(i);
 		string effectRight = right.GetEffectDisplayText(i);
-		display += DisplayEffect(effectLeft, effectRight);
+		display += DisplayEffectOrSkill(effectLeft, effectRight);
 
-		if (i + 1 < maxEffectsNb)
-			display += +"\t";
+		// add tab for next effect line, or empty line if over to separate
+		if (i + 1 == maxEffectsNb)
+			display += AddEmtpyLine(SeparatorType::END);
+		else
+			display += "\t";
 	}
-
-	// SKILLS COOLDOWN
 
 	return display;
 }
@@ -576,7 +691,7 @@ void UIManager::DisplayPreviousTurn(bool forceLastTurn)
 		return;
 
 	CleanScreen();
-	
+
 	// display previous
 	_currentTurn--;
 	cout << _history[_currentTurn];
@@ -593,7 +708,7 @@ void UIManager::LaunchEditForm(Hero& hero, int heroNumber)
 	cout << screen;
 
 	// hero name
-	screen += "\n\n\t"+ Format(GetT("HERO_NAME"), hero.GetName());
+	screen += "\n\n\t" + Format(GetT("HERO_NAME"), hero.GetName());
 	string temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
 	hero._name = ReadText(temp);
 	screen += " " + hero._name;

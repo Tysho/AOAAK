@@ -4,8 +4,20 @@
 #include "Hero.h"
 #include "ResourcesManager.h"
 
+// return the string resuming the duration for the effet, ready to dispay
+string Effect::GetResume()
+{
+	string result = _name;
+	string turn = " ";
+	turn += char(219);
+	for (int i = 0; i < GetDurationLeft(); i++)
+		result += turn;
+
+	return result;
+}
+
 /// <summary>
-/// Decrease duration 
+/// Decrease duration.
 /// Could be overriden to eventually apply effect every turn for exemple (regen, increasing/decreasing effect, etc.)
 /// </summary>
 /// <returns>duration left</returns>
@@ -15,10 +27,8 @@ short Effect::Update()
 	return _duration;
 }
 
-/// <summary>
-/// return string explaining the effect
-/// </summary>
-/// <returns></returns>
+
+// return string explaining the effect
 string DamageModifier::Affect()
 {
 	// error...

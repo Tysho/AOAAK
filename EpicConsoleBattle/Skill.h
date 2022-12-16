@@ -2,14 +2,14 @@
 
 using namespace std;
 
-#define NEW_HERO_CLASS(classname, code)				\
-class classname : public Skill {					\
-public:												\
-	classname();									\
-	virtual ~classname() {};						\
-public:												\
+#define NEW_HERO_CLASS(classname, code)		\
+class classname : public Skill {			\
+public:										\
+	classname();							\
+	virtual ~classname() {};				\
+public:										\
 	virtual bool Cast(Hero& target) final;	\
-	int GetCode() { return code; };					\
+	int GetCode() { return code; };			\
 };
 
 enum class TypeTarget {
@@ -32,14 +32,13 @@ public:
 	TypeTarget _target = TypeTarget::opponent;
 	short _timer = 0;							// timer left before next cast
 	int _accuracy = 50;							// percentage (0 = never hit to 100 = always hit)
-
-protected:
 	short _cooldown = 5;						// delay between 2 casts
 
 public:
 	virtual bool Cast(Hero& target) { _timer = _cooldown; return false; };
 	void EndTurn() { _timer--; };
 	int GetCode() { return -1; };
+	string GetResume();
 	const char* GetName() { return _name.c_str(); };
 	static Skill* CreateSkillInstanceById(int idSkill);
 };
