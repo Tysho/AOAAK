@@ -16,7 +16,8 @@ using namespace std;
 void Init() {
     // init random number generation seed with current time, so the fights won't end the same every time
     srand((unsigned int)time(0));
-    ResourcesManager::LoadLanguages();
+
+    UI().SetupConsoleSize();
 
     // load languages resources from Language.csv file
     if (ResourcesManager::LoadLanguages() == false) {
@@ -24,16 +25,14 @@ void Init() {
         exit(1);
     }
 
-    HeroClass::InitClasses();
+    UI().SelectLanguage();
 
     // get heroes saved
+    HeroClass::InitClasses();
     if(ResourcesManager::LoadHeroes() == false) {
         system("pause");
         exit(1);
     }
-
-    UI().SetupConsoleSize();
-    UI().SelectLanguage();
 }
 
 

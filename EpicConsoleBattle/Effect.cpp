@@ -10,7 +10,7 @@ string Effect::GetResume()
 	string result = _name + " : ";
 	string turn = " ";
 	turn += char(219);
-	for (int i = 0; i < GetDurationLeft(); i++)
+	for (int i = 0; i < GetDurationLeft() + 1; i++)	// + 1 because when we ask resume tower is already played and effect updated
 		result += turn;
 
 	return result;
