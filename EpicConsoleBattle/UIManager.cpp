@@ -50,7 +50,7 @@ inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName
 	int curPosition = 0;
 	for (Hero* p : ResourcesManager::_listHeroes)
 	{
-		if (p->_name == firstHeroName && p->_class._name == firstHeroClass)
+		if (p->_name == firstHeroName && p->GetClass() == firstHeroClass)
 		{
 			if (curPosition == curSelection)
 				curSelection++;
@@ -59,9 +59,9 @@ inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName
 		}
 
 		if (curSelection == curPosition)
-			screen += "\t > [ " + p->_name + " (" + p->_class._name + ") ]\n\n";
+			screen += "\t > [ " + p->_name + " (" + p->GetClass() + ") ]\n\n";
 		else
-			screen += "\t" + p->_name + " (" + p->_class._name + ")\n\n";
+			screen += "\t" + p->_name + " (" + p->GetClass() + ")\n\n";
 		curPosition++;
 	}
 
@@ -537,7 +537,7 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 
 			// if we fall on the already picked one, then we jump to the next one
 			Hero* pHero = ResourcesManager::_listHeroes[curSelection];
-			if (pHero->_name == firstHeroName && pHero->_class._name == firstHeroClass) {
+			if (pHero->_name == firstHeroName && pHero->GetClass() == firstHeroClass) {
 				curSelection++;
 
 				// no more next one ? we stay at the end
@@ -554,7 +554,7 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 
 			// if we fall on the already picked one, then we jump to the next one
 			Hero* pHero = ResourcesManager::_listHeroes[curSelection];
-			if (pHero->_name == firstHeroName && pHero->_class._name == firstHeroClass) {
+			if (pHero->_name == firstHeroName && pHero->GetClass() == firstHeroClass) {
 				curSelection--;
 
 				// no more next one ? we stay at the beginning
@@ -589,7 +589,8 @@ string UIManager::DrawNiceLine()
 	return ret;
 }
 
-// display hp/shield and effect of both champs
+
+// display hp/shield, skills cooldown and effect of both champs
 string UIManager::DrawStats(Hero& left, Hero& right)
 {
 	string display = AddEmtpyLine(SeparatorType::BEGINNING);
@@ -632,30 +633,30 @@ string UIManager::DrawStats(Hero& left, Hero& right)
 	int maxSkillsNb = max(left.GetNbSkills(), right.GetNbSkills());
 	int maxEffectsNb = max(left.GetNbEffects(), right.GetNbEffects());
 	for (int i = 0; i < maxSkillsNb; i++) {
-		string skillLeft = left.GetSkillDisplayText(i);
-		string skillRight = right.GetSkillDisplayText(i);
+		string skillLeft = left.GetSkillResume(i);
+		string skillRight = right.GetSkillResume(i);
 		display += DisplayEffectOrSkill(skillLeft, skillRight);
 
 		// add tab for next skill line, or empty line if over to separate
 		if (i + 1 == maxSkillsNb && maxEffectsNb > 0)
-			display += AddEmtpyLine(SeparatorType::MIDDLE);
+			display += AddEmtpyLine(SeparatorType::MIDDLE);	// last skill, add separator if there is effects after
 		else if(maxEffectsNb == 0)
-			display += AddEmtpyLine(SeparatorType::END);
+			display += AddEmtpyLine(SeparatorType::END);	// last skill, no effect to display
 		else
-			display += "\t";
+			display += AddEmtpyLine();						// empty line before next skill
 	}
 
 	// DISPLAY EFFECTS
 	for (int i = 0; i < maxEffectsNb; i++) {
-		string effectLeft = left.GetEffectDisplayText(i);
-		string effectRight = right.GetEffectDisplayText(i);
+		string effectLeft = left.GetEffectResume(i);
+		string effectRight = right.GetEffectResume(i);
 		display += DisplayEffectOrSkill(effectLeft, effectRight);
 
 		// add tab for next effect line, or empty line if over to separate
 		if (i + 1 == maxEffectsNb)
 			display += AddEmtpyLine(SeparatorType::END);
 		else
-			display += "\t";
+			display += AddEmtpyLine();
 	}
 
 	return display;
@@ -668,6 +669,7 @@ void UIManager::DrawNewTurn(Hero& left, Hero& right)
 	_currentTurn++;
 	LogTurnCount(_currentTurn);
 
+	// _summary is completed with "playTurn" function in Battle Class
 	string screen = _header + DrawStats(left, right) + _summary;
 
 	// reach last line of console...
@@ -743,32 +745,30 @@ void UIManager::LaunchEditForm(Hero& hero, int heroNumber)
 
 	// hero name
 	screen += "\n\n\t" + Format(GetT("HERO_NAME"), hero.GetName());
-	string temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
-	hero._name = ReadText(temp);
+	hero._name = ReadText(screen);
 	screen += " " + hero._name;
 
 	// hero health points
 	screen += "\n\n\t" + Format(GetT("HERO_HP"), hero.GetName());
-	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
-	hero._stats._currentHP = hero._stats._maxHP = ReadNumber(temp);
+	hero._stats._currentHP = hero._stats._maxHP = ReadNumber(screen);
 	screen += " " + to_string(hero._stats._currentHP);
 
 	// hero shield value
 	screen += "\n\n\t" + Format(GetT("HERO_SHIELD"), hero.GetName());
-	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
-	hero._stats._currentShield = hero._stats._maxShield = ReadNumber(temp, true); // can be zero
+	hero._stats._currentShield = hero._stats._maxShield = ReadNumber(screen, true); // can be zero
 	screen += " " + to_string(hero._stats._currentShield);
 
 	// hero weapon name
+	Weapon weapon;
 	screen += "\n\n\t" + Format(GetT("HERO_WEAPON_NAME"), hero.GetName());
-	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
-	hero._class._weapon = ReadText(temp);
-	screen += " " + hero._class._weapon;
+	weapon._name = ReadText(screen);
+	screen += " " + weapon._name;
 
 	// hero weapon damage
 	screen += "\n\n\t" + Format(GetT("HERO_WEAPON_DAMAGES"), hero.GetWeaponName());
-	temp = AddEmptyLinesUntilBottomScreen(screen) + "\n" + DrawNiceLine();
-	hero._stats._damages = ReadNumber(temp);
+	weapon._damages = ReadNumber(screen);
+
+	hero.EquipWeapon(weapon);
 
 	CleanScreen();
 }
@@ -826,7 +826,7 @@ string UIManager::DisplayClassSelector(Hero& hero, int numHero)
 		case VerticalSelection::SELECT:
 			hero.SetClass(HeroClass::_listClasses[curSelection]);
 
-			header += "\t" + GetT("HERO_CLASS") + hero._class._name;
+			header += "\t" + GetT("HERO_CLASS") + hero.GetClass();
 			return header;
 		}
 	}

@@ -40,7 +40,7 @@ void SelectHeroes(Hero& hero1, Hero& hero2) {
 
     UI().SelectHero(hero1, 1);
 
-    UI().SelectHero(hero2, 2, hero1._name, hero1._class._name);
+    UI().SelectHero(hero2, 2, hero1._name, hero1.GetClass());
 }
 
 int main()

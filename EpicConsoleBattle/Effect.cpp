@@ -7,7 +7,7 @@
 // return the string resuming the duration for the effet, ready to dispay
 string Effect::GetResume()
 {
-	string result = _name;
+	string result = _name + " : ";
 	string turn = " ";
 	turn += char(219);
 	for (int i = 0; i < GetDurationLeft(); i++)

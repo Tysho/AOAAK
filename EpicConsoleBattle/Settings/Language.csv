@@ -1,51 +1,60 @@
 LANGUAGE;Français;English
+
 INSTRUCTIONS_DISPLAY_PREVIOUS; : précédent; : back 
 INSTRUCTIONS_DISPLAY_NEXT; | [entrée] : suivant; | [enter] : forward
 INSTRUCTIONS_MOVE; : changer; : move
 INSTRUCTIONS_SELECT;[entrée] : sélectionner;[enter] : select
-SELECT_CHAR_CLASS;\tSélectionnez la classe du héros : ;\tSelect the class of the hero : 
-ENTER_CHAR_NAME;\tEntrer le nom du héros: ;\tEnter the name of the hero : 
-ENTER_CHAR_HP;\tPoints de Vie de "%s" (entrer un nombre) : ;\t"%s" Health Points (enter a number) : 
-ENTER_CHAR_SHIELD;\tPoints de Bouclier de "%s" (entrer un nombre) : ;\t"%s" Shield Points (enter a number) : 
-ENTER_CHAR_WEAPON_DAMAGES;\tPoints de dégâts de "%s" (entrer un nombre) : ;\t"%s" Damages Points (enter a number) : 
-TURN_COUNTER;\t\t\t\t\t\t  ------------------------\n\t\t\t\t\t\t  ------- TOUR %s --------\n\t\t\t\t\t\t  ------------------------\n;\t\t\t\t\t\t  ------------------------\n\t\t\t\t\t\t  ------- TURN %s --------\n\t\t\t\t\t\t  ------------------------\n
-CUSTOM_HERO;Nouveau héros personnalisé;New custom hero
-BATTLE_BEGIN;Que le combat commence !!!;FIGHT !!!
-SHIELD;Bouclier : ;Shield : 
+
 LIFE_POINT;PV : ;HP : 
+SHIELD;Bouclier : ;Shield : 
 SKILL_PHASE;\n\t>-   Phase de compétences\n;\n\t>-   Skill Phase\n
 BATTLE_PHASE;\n\t>-   Phase de combat\n;\n\t>-   Battle Phase\n
-ATTACK;%s attaque %s avec son arme "%s" !;%s attacks %s with his %s !
+ATTACK;%s attaque %s avec "%s" !;%s attacks %s with his %s !
 SHIELD_BLOCK;\t%s bloque adroitement le coup avec son bouclier !;\t%s skillfully blocked the hit with his shield !"
 SHIELD_DESTROYED;Le bouclier de %s vole en éclat ! ça lui fait une belle jambe...;The shield of %s explodes ! No more shield :(
 TAKES_DAMAGES;\t%s subit %d dégâts !!!;\t%s recieved %d damages !!!
-STUNNED_THIS_TURN;%s est sonné pour ce tour et ne peux pas attaquer !;%s cannot attack : he is stunned this turn !"
 USES_SKILL;%s utilise sa compétence "%s";%s uses his skill "%s"
 USES_SKILL_ON;%s utilise sa compétence "%s" sur %s;%s uses his skill "%s" on %s
+
+STUN;Etourdissement;Stunning blow
 STUNNED;%s est assomé par la violence du coup !;%s got stunned !"
-BONUS_DAMAGES;%s reçoit un bonus aux dégâts de %d%% pour %d tour(s) !!;%s gets a damage bonus of %d%% for %d turn(s) !!"
-MALUS_DAMAGES;%s voit ses dégâts réduits de %d%% pour %d tour(s) !!;%s has damages creeple by %d%% for %d turn(s) !!"
 MISS_STUN;%s évite le terrible coup de son adversaire !;%s avoid the blow of his opponent weapon !"
+STUNNED_THIS_TURN;%s est sonné pour ce tour et ne peux pas attaquer !;%s cannot attack : he is stunned this turn !"
+
+CHARGE;Charge;Charge;
 MISS_CHARGE;%s rate lamentablement sa charge.;%s miserably miss his charge."
+BONUS_DAMAGES;%s reçoit un bonus aux dégâts de %d%% pour %d tour(s) !!;%s gets a damage bonus of %d%% for %d turn(s) !!"
+
+ARROW_IN_THE_KNEE;Flèche dans le genoux;Arrow in the knee
 MISS_ARROW_IN_THE_KNEE;%s évite la flèche qui vise ses jambes !;%s avoid the vicious shot."
-END;FIN;The end
+MALUS_DAMAGES;%s voit ses dégâts réduits de %d%% pour %d tour(s) !!;%s has damages creeple by %d%% for %d turn(s) !!"
+
 HERO_SELECT;\t\t\t\t=====================================\n\t\t\t\t========== Choix du héros %d ========\n\t\t\t\t=====================================;\t\t\t\t=====================================\n\t\t\t\t========== Select a hero %d =========\n\t\t\t\t=====================================
+BATTLE_BEGIN;Que le combat commence !!!;FIGHT !!!
+TURN_COUNTER;\t\t\t\t\t\t  ------------------------\n\t\t\t\t\t\t  ------- TOUR %s --------\n\t\t\t\t\t\t  ------------------------\n;\t\t\t\t\t\t  ------------------------\n\t\t\t\t\t\t  ------- TURN %s --------\n\t\t\t\t\t\t  ------------------------\n
+END;FIN;The end
+
+CUSTOM_HERO;Nouveau héros personnalisé;New custom hero
 HERO_EDIT;\t\t\t\t=====================================\n\t\t\t\t======= Création du héros %d ========\n\t\t\t\t=====================================;\t\t\t\t=====================================\n\t\t\t\t======== Creation of hero %d ========\n\t\t\t\t=====================================
 FIRST_HERO_PICKED;Premier héros choisi : %s (%s);First hero picked : %s (%s)
+HERO_CLASS;Classe : ;Class : 
 HERO_NAME;Nom du héros : ;Name of the hero : 
 HERO_HP;Nombre de PV (points de vie) de %s (entrez un nombre) : ;%s's HP (Life Points) (enter a number) : 
 HERO_SHIELD;Points de bouclier de %s (entrez un nombre) : ;%s's shield value (enter a number) :
 HERO_WEAPON_NAME;Arme de %s : ;%s's weapon : 
 HERO_WEAPON_DAMAGES;dégâts infligés par "%s" (entrez un nombre) : ;"%s"'s damages (enter a number) : 
 DAMAGES;dégâts;damages
+
 KNIGHT;Chevalier;Knight
-KNIGHT_WEAPON;épée;sword
 KNIGHT_DESCRIPTION;\tUn preux chevalier qui n'hésite pas à charger, doublant ses dégâts pour\n\t\tun tour (3 tour de rechargement);\tA knight in his shiny armor, who can charge the opponent to double\n\t\this damage for one turn (once every 3 turns)
+SWORD;épée;sword
+
 ORC;Orc;Orc;
-ORC_WEAPON;hache;axe
 ORC_DESCRIPTION;\tUn guerrier sauvage, capable d'assommer un adversaire pendant un tour\n\t\td'un brutal coup de son imposante hache (5 tour de rechargement);\tA fierce warrior with hurging bloodthirst, who can stun for one turn the\n\t\tennemy with a brutal blow (once every 5 turns)
+AXE;hache;axe
+
 ELF;Elfe;Elf
-ELF_WEAPON;arc long;longbow
 ELF_DESCRIPTION;\tUn agile esprit des bois, capable d'handicaper un adversaire, réduisant\n\t\tnotablement ses dégâts pour 3 tours(4 tour de rechargement);\tA graceful and skillful spirit of the wood, who can creeple the damages\n\t\tof the opponent for 3 turns (once every 4 turns)
-HERO_CLASS;Classe : ;Class : 
-GAME_OVER;\n                      _____  _____\n                     <     `/     |\n                      >          (\n                     |   _     _  |\n                     |  |_) | |_) |\n                     |  | \ | |   |\n                     |            |\n      ______.______%%_|            |__________  _____\n    _/                                       \|     |\n   |     %s   <\n   |_____.-._________              ____/|___________|\n                     |  MORT AVEC |\n                     |  HONNEUR   |\n                     |            |\n                     |            |\n                     |   _        <\n                     |__/         |\n                      / `--.      |\n                    %%|            |%%\n                |/.%%%%|          -< @%%%%%%\n                `\%%`@|     v      |@@%%@%%%%    \n              .%%%%%%@@@|%%    |    %% @@@%%%%@%%%%%%%%\n         _.%%%%%%%%%%%%@@@@@@%%%%_/%%\_%%@@%%%%@@@@@@@%%%%%%%%%%%%;\n                      _____  _____\n                     <     `/     |\n                      >          (\n                     |   _     _  |\n                     |  |_) | |_) |\n                     |  | \ | |   |\n                     |            |\n      ______.______%%_|            |__________  _____\n    _/                                       \|     |\n   |     %s   <\n\n   |_____.-._________              ____/|___________|\n                     |  DIED WITH |\n                     |    HONOR   |\n                     |            |\n                     |            |\n                     |   _        <\n                     |__/         |\n                      / `--.      |\n                    %%|            |%%\n                |/.%%%%|          -< @%%%%%%\n                `\%%`@|     v      |@@%%@%%%%    \n              .%%%%%%@@@|%%    |    %% @@@%%%%@%%%%%%%%\n         _.%%%%%%%%%%%%@@@@@@%%%%_/%%\_%%@@%%%%@@@@@@@%%%%%%%%%%%%
+BOW;arc long;longbow
+
+GAME_OVER;\n                      _____  _____\n                     <     `/     |\n                      >          (\n                     |   _     _  |\n                     |  |_) | |_) |\n                     |  | \ | |   |\n                     |            |\n      ______.______%%_|            |__________  _____\n    _/                                       \|     |\n   |     %s   <\n   |_____.-._________              ____/|___________|\n                     |  MORT AVEC |\n                     |   HONNEUR  |\n                     |            |\n                     |            |\n                     |   _        <\n                     |__/         |\n                      / `--.      |\n                    %%|            |%%\n                |/.%%%%|          -< @%%%%%%\n                `\%%`@|     v      |@@%%@%%%%    \n              .%%%%%%@@@|%%    |    %% @@@%%%%@%%%%%%%%\n         _.%%%%%%%%%%%%@@@@@@%%%%_/%%\_%%@@%%%%@@@@@@@%%%%%%%%%%%%;\n                      _____  _____\n                     <     `/     |\n                      >          (\n                     |   _     _  |\n                     |  |_) | |_) |\n                     |  | \ | |   |\n                     |            |\n      ______.______%%_|            |__________  _____\n    _/                                       \|     |\n   |     %s   <\n\n   |_____.-._________              ____/|___________|\n                     |  DIED WITH |\n                     |    HONOR   |\n                     |            |\n                     |            |\n                     |   _        <\n                     |__/         |\n                      / `--.      |\n                    %%|            |%%\n                |/.%%%%|          -< @%%%%%%\n                `\%%`@|     v      |@@%%@%%%%    \n              .%%%%%%@@@|%%    |    %% @@@%%%%@%%%%%%%%\n         _.%%%%%%%%%%%%@@@@@@%%%%_/%%\_%%@@%%%%@@@@@@@%%%%%%%%%%%%

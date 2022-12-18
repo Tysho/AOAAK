@@ -1,9 +1,10 @@
 // this is the class of the HMI : all display will be done there, as well as functions to get user keyboards entries.
 // it also contains an history off all consecutive sequences, and the methodes to navigate between.
 
-#include "Settings.h"
-
 #pragma once
+
+#include <vector>
+#include <string>
 
 using namespace std;
 

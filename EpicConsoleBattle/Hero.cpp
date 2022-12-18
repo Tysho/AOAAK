@@ -17,9 +17,8 @@ using namespace std;
 
 vector<HeroClass> HeroClass::_listClasses = vector<HeroClass>();
 
-HeroClass::HeroClass(const string& name, const string& weapon, vector<int> listSkills, const string& description) :
+HeroClass::HeroClass(const string& name, vector<int> listSkills, const string& description) :
     _name(name),
-    _weapon(weapon),
     _description(description)
 {
     for (int skillId : listSkills)
@@ -29,16 +28,15 @@ HeroClass::HeroClass(const string& name, const string& weapon, vector<int> listS
 void HeroClass::InitClasses()
 {
     _listClasses = {
-        HeroClass(GetT("KNIGHT"), GetT("KNIGHT_WEAPON"), { CHARGE }, GetT("KNIGHT_DESCRIPTION")),
-        HeroClass(GetT("ORC"), GetT("ORC_WEAPON"), { STUN }, GetT("ORC_DESCRIPTION")),
-        HeroClass(GetT("ELF"), GetT("ELF_WEAPON"), { ARROW_KNEE }, GetT("ELF_DESCRIPTION"))
+        HeroClass(GetT("KNIGHT"), { CHARGE }, GetT("KNIGHT_DESCRIPTION")),
+        HeroClass(GetT("ORC"),{ STUN }, GetT("ORC_DESCRIPTION")),
+        HeroClass(GetT("ELF"),{ ARROW_KNEE }, GetT("ELF_DESCRIPTION"))
     };
 }
 
 HeroClass& HeroClass::operator=(const HeroClass& other)
 {
     _name = other._name;
-    _weapon = other._weapon;
     _listSkillsId = other._listSkillsId;
 
     return *this;
@@ -72,6 +70,7 @@ Hero& Hero::operator=(Hero& other)
 {
     _class = other._class;
     _name = other._name;
+    _weapon = other._weapon;
     _stats = other._stats;				// hp&shield, current and max values
     _stun = other._stun;
     _listSkills = other._listSkills;
@@ -153,6 +152,12 @@ void Hero::EndTurn()
     _listEffects.erase(std::remove_if(_listEffects.begin(), _listEffects.end(), expired), _listEffects.end());
 }
 
+void Hero::EquipWeapon(const Weapon weapon)
+{
+    _weapon._name = weapon._name;
+    _weapon._damages = weapon._damages;
+}
+
 
 // stun the hero if not already stunned for a greater duration
 void Hero::Stun(int duration)
@@ -164,13 +169,17 @@ void Hero::Stun(int duration)
 
 // get damages dealt by the hero after all damages modifers are applied
 int Hero::GetDamages() {
-    int damages = _stats._damages;
-    for (Effect* pEffect : _listEffects) {
+    // base damages 
+    int damages = _weapon._damages;
+
+    // all multipliers currently affecting the hero
+    for (Effect* pEffect : _listEffects)
         damages = (int)ceil(pEffect->GetDamageMultiplier() * damages);
-    }
+
     return damages;
 }
 
+// Return number of effect affecting the hero (stun + effects)
 int Hero::GetNbEffects()
 { 
     int nbEffects = _stun > 0 ? 1 : 0;
@@ -208,11 +217,11 @@ void Hero::SetClass(const HeroClass& heroClass)
 
 
 // return the text of an effect applied to the Hero with the remaining duration
-string Hero::GetEffectDisplayText(int i) 
+string Hero::GetEffectResume(int i) 
 {
     // Stun effect
     if (_stun > 0 && i == 0) {
-        string result = "Stun";
+        string result = GetT("STUN") + " : ";
         string turn = " ";
         turn += char(219);
         for (int i = 0; i < _stun; i++)
@@ -231,7 +240,7 @@ string Hero::GetEffectDisplayText(int i)
     return result;
 }
 
-string Hero::GetSkillDisplayText(int i)
+string Hero::GetSkillResume(int i)
 {
     if (i >= (int)_listSkills.size())
         return "";

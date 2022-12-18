@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Settings.h"
-
 using namespace std;
 
 class Hero;

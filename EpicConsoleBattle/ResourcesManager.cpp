@@ -68,6 +68,10 @@ bool ResourcesManager::LoadLanguages()
     // get all texts in current langue with key
     vector<string> tokens;
     while (getline(languageFile, line)) {
+        // empty line ?
+        if (line == "")
+            continue;
+
         tokens.clear();
         stringstream texts(line);
         string s;
@@ -150,14 +154,19 @@ bool ResourcesManager::LoadHeroes()
         else
             shield = atoi(tokens[3].c_str());
 
-        // HERO WEAPON'S DAMAGE
-        int damages = 5;
-        if (tokens[4] != "" && UIManager::IsNumber(tokens[4]) == false)
-            parseError += "Invalid Shield value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[4] + "\" ; 5 used by default\n";
-        else
-            damages = atoi(tokens[4].c_str());
+        // HERO WEAPON'S NAME
+        Weapon weapon;
+        weapon._name = GetT(tokens[4]);
 
-        Hero* pHero = new Hero(heroClass, name, Stats(damages, hp, shield));
+        // HERO WEAPON'S DAMAGE
+        weapon._damages = 5;
+        if (tokens[5] != "" && UIManager::IsNumber(tokens[5]) == false)
+            parseError += "Invalid damage value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[5] + "\" ; 5 used by default\n";
+        else
+            weapon._damages = atoi(tokens[5].c_str());
+
+        Hero* pHero = new Hero(heroClass, name, Stats(hp, shield));
+        pHero->EquipWeapon(weapon);
         _listHeroes.push_back(pHero);
     }
 

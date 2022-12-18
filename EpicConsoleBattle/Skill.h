@@ -27,19 +27,22 @@ public:
 	Skill() {};
 	virtual ~Skill() {};
 
+	// Attributes
 public:
-	std::string _name = "UNNAMED_SKILL";
+	string _name = "UNDEF_SKILL";
 	TypeTarget _target = TypeTarget::opponent;
 	short _timer = 0;							// timer left before next cast
 	int _accuracy = 50;							// percentage (0 = never hit to 100 = always hit)
 	short _cooldown = 5;						// delay between 2 casts
 
+	// Methods
 public:
 	virtual bool Cast(Hero& target) { _timer = _cooldown; return false; };
+
 	void EndTurn() { _timer--; };
 	int GetCode() { return -1; };
+	const char* GetName();
 	string GetResume();
-	const char* GetName() { return _name.c_str(); };
 	static Skill* CreateSkillInstanceById(int idSkill);
 };
 

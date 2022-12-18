@@ -1,4 +1,4 @@
-Class;Name;HP;Shield;Weapon_damages
-KNIGHT;Lord Belmesh;20;50;5
-ORC;Gromek;60;0;8
-ELF;Lass Lego;40;0;10
+Class;Name;HP;Shield;WeaponName;WeaponDamages
+KNIGHT;Lord Belmesh;20;50;SWORD;5
+ORC;Gromek;60;0;AXE;8
+ELF;Lass Lego;40;0;BOW;10

@@ -8,9 +8,14 @@
 
 #define LOG(str) cout << "\n\t"; cout << str;
 
+const char* Skill::GetName()
+{ 
+    return _name.c_str();
+}
+
 string Skill::GetResume()
 {
-    string resume = _name;
+    string resume = _name + " : ";
     string empty = " ", plain = " ";
     empty += char(176);
     plain += char(219);
@@ -43,7 +48,7 @@ Stun::Stun() : Skill()
     _timer = 0;
     _cooldown = STUN_COOLDOWN;
     _accuracy = STUN_ACCURACY;
-    _name = "Stun";
+    _name = GetT("STUN");
 };
 
 bool Stun::Cast(Hero& target)
@@ -77,7 +82,7 @@ Charge::Charge() : Skill()
     _timer = 0;
     _cooldown = CHARGE_COOLDOWN;
     _accuracy = CHARGE_ACCURACY;
-    _name = "Charge !!!";
+    _name = GetT("CHARGE");
 };
 
 bool Charge::Cast(Hero& target) 
@@ -93,7 +98,7 @@ bool Charge::Cast(Hero& target)
     }
 
     // damages doubled for 1 turn !
-    string effectName = GetT("DAMAGES") + "x2";
+    string effectName = GetT("DAMAGES") + " x 2";
     DamageModifier* pChargeEffect = new DamageModifier(effectName, target, CHARGE_DURATION, CHARGE_DAMAGE_MULTIPLIER);
     string log = target.AddEffect(pChargeEffect);
     UI().LogSummary(log);
@@ -111,7 +116,7 @@ ArrowInTheKnee::ArrowInTheKnee() : Skill()
     _timer = 0;
     _cooldown = ARROW_KNEE_COOLDOWN;
     _accuracy = ARROW_KNEE_ACCURACY;
-    _name = "Arrow in the knee !";
+    _name = GetT("ARROW_IN_THE_KNEE");
 };
 
 bool ArrowInTheKnee::Cast(Hero& target) 
@@ -127,7 +132,7 @@ bool ArrowInTheKnee::Cast(Hero& target)
     }
 
     // damages / 2 for 3 turn !
-    string name = GetT("DAMAGES") + "/2";
+    string name = GetT("DAMAGES") + " / 2";
     DamageModifier* pNoMoreAnAdventurer = new DamageModifier(name, target, ARROW_KNEE_DURATION, ARROW_KNEE_DAMAGE_MUTLIPLIER);
     string log = target.AddEffect(pNoMoreAnAdventurer);
     UI().LogSummary(log);
