@@ -31,7 +31,7 @@ short Effect::Update()
 // return string explaining the effect
 string DamageModifier::Affect()
 {
-	// error...
+	// error... neutral damage multiplier ?!
 	if (_damageMultiplier == 1)
 		return "";
 

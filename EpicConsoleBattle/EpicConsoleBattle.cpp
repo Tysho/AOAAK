@@ -1,4 +1,4 @@
-// AnOrcAndAKnight.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
+// EpicConsoleBattle.cpp : (no .h) Contain 'main' function, where the program begin and close
 //
 
 #include "Settings.h"
@@ -12,6 +12,7 @@
 
 using namespace std;
 
+// Get resources from csv files in Setting folder
 void Init() {
     // init random number generation seed with current time, so the fights won't end the same every time
     srand((unsigned int)time(0));
@@ -35,18 +36,20 @@ void Init() {
     UI().SelectLanguage();
 }
 
-// Edit/select hero
-void SelectHeroes(Hero& hero1, Hero& hero2) {
 
+// Edit/select hero
+void SelectHeroes(Hero& hero1, Hero& hero2) 
+{
     UI().SelectHero(hero1, 1);
 
     UI().SelectHero(hero2, 2, hero1._name, hero1.GetClass());
 }
 
-int main()
-{
-    Init();
 
+// a battle, from hero selection to the game over screen
+void PlayBattle()
+{
+    // creation/selection of the 2 challengers
     Hero hero1, hero2;
     SelectHeroes(hero1, hero2);
 
@@ -73,10 +76,10 @@ int main()
         {
             // first time on score board : display winner, otherwise, leave
             if (battle.DisplayScore() == false)
-                return 1;
+                return;
 
             // the end if we continue from there
-            if (UI().GetInputKeyForwardBackward() == NextDisplay::FORWARD) 
+            if (UI().GetInputKeyForwardBackward() == NextDisplay::FORWARD)
                 break;
 
             UI().DisplayPreviousTurn(true);
@@ -88,7 +91,24 @@ int main()
 
         // display result screen
         UI().DrawNewTurn(hero1, hero2);
-
+        
         battle.EndTurn();
+    }
+}
+
+
+// main function of program
+int main()
+{
+    Init();
+
+    while (1) {
+        PlayBattle();
+
+        if (UI().SelectRestartOrQuit() == false)
+            exit(1);
+
+        // restart random seed
+        srand((unsigned int)time(0));
     }
 }

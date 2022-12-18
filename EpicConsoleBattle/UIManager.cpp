@@ -1,4 +1,7 @@
-﻿#include "UIManager.h"
+﻿// this is the class of the HMI : all display will be done there, as well as functions to get user keyboards entries.
+// it also contains an history off all consecutive sequences, and the methodes to navigate between.
+
+#include "UIManager.h"
 #include "Settings.h"
 
 #include "Hero.h"
@@ -15,14 +18,53 @@ enum class InstructionType {
 	NAVIGATE,
 	FORM_SELECT
 };
+
 #pragma region Inline fct tools
 
 // clear console
 inline void CleanScreen() { system("cls"); };
 
 
+// resize screen buffer to match console window size to avoid scrollbar
+inline void RemoveScrollbars()
+{
+	HANDLE handleConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	// retrieve screen buffer info
+	CONSOLE_SCREEN_BUFFER_INFO scrBufferInfo;
+	GetConsoleScreenBufferInfo(handleConsole, &scrBufferInfo);
+
+	// current window size
+	short winWidth = scrBufferInfo.srWindow.Right - scrBufferInfo.srWindow.Left + 1;
+	short winHeight = scrBufferInfo.srWindow.Bottom - scrBufferInfo.srWindow.Top + 1;
+
+	// current screen buffer size
+	short scrBufferWidth = scrBufferInfo.dwSize.X;
+	short scrBufferHeight = scrBufferInfo.dwSize.Y;
+
+	// to remove the scrollbar the window height must match the screen buffer height
+	COORD newSize{ scrBufferWidth, winHeight };
+
+	// set new screen buffer dimensions
+	SetConsoleScreenBufferSize(handleConsole, newSize);
+}
+
+#pragma endregion
+
+
+// static methode return true if the string contains only numeric characters ("-" and "./," not allowed)
+bool UIManager::IsNumber(const string& s)
+{
+	std::string::const_iterator it = s.begin();
+	while (it != s.end() && std::isdigit(*it)) ++it;
+	return !s.empty() && it == s.end();
+}
+
+
+#pragma region static local functions (tools)
+
 // count number of line in a string (=number of "\t"
-inline int GetNbLines(const string& s)
+int GetNbLines(const string& s)
 {
 	int nbLines = std::count(s.begin(), s.end(), '\n') + 1;
 	return nbLines;
@@ -30,7 +72,7 @@ inline int GetNbLines(const string& s)
 
 
 // create a string with empty line until the bottom of the screen, considering the string starts at the very first line)
-inline string AddEmptyLinesUntilBottomScreen(const string& s, int stopBefore = 1)
+string AddEmptyLinesUntilBottomScreen(const string& s, int stopBefore = 1)
 {
 	string temp = s;
 	int nbLines = GetNbLines(s);
@@ -43,7 +85,7 @@ inline string AddEmptyLinesUntilBottomScreen(const string& s, int stopBefore = 1
 
 
 // display selector with current selection highlighted
-inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", const string& firstHeroClass = "")
+string DisplayHeroSelector(int& curSelection, const string& firstHeroName = "", const string& firstHeroClass = "")
 {
 	string screen;
 
@@ -75,7 +117,7 @@ inline string DisplayHeroSelector(int& curSelection, const string& firstHeroName
 
 
 // display screen while user don't tape text then enter
-inline string ReadText(const string& screen) {
+string ReadText(const string& screen) {
 	string s;
 	do {
 		CleanScreen();
@@ -87,7 +129,8 @@ inline string ReadText(const string& screen) {
 
 
 // display screen while user don't enter a integer value
-inline int ReadNumber(const string& screen, bool canBeZero = false) {
+int ReadNumber(const string& screen, bool canBeZero = false) 
+{
 	string s;
 	while (1) {
 		CleanScreen();
@@ -111,7 +154,7 @@ inline int ReadNumber(const string& screen, bool canBeZero = false) {
 
 
 // add an empty line with separator on the middle
-static string AddEmtpyLine(SeparatorType separator = SeparatorType::NONE)
+string AddEmtpyLine(SeparatorType separator = SeparatorType::NONE)
 {
 	string display;
 
@@ -139,7 +182,7 @@ static string AddEmtpyLine(SeparatorType separator = SeparatorType::NONE)
 
 
 // Draw life or shield bar for both Heroes stats
-inline string DrawBar(bool isHp, const Stats& left, const Stats& right)
+string DrawBar(bool isHp, const Stats& left, const Stats& right)
 {
 	string result;
 
@@ -186,7 +229,7 @@ inline string DrawBar(bool isHp, const Stats& left, const Stats& right)
 
 
 // Get a line which display curValue / maxValue for both Heroes stats
-inline string DisplayValue(bool isHp, const Stats& left, const Stats& right)
+string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 {
 	string dataType = isHp ? GetT("LIFE_POINT") : GetT("SHIELD");
 	int leftCur = isHp ? left._currentHP : left._currentShield;
@@ -219,7 +262,7 @@ inline string DisplayValue(bool isHp, const Stats& left, const Stats& right)
 
 
 // Get a line which display effects affecting the heroes (one call per effect for both)
-inline string DisplayEffectOrSkill(const string& effectLeft, const string& effectRight)
+string DisplayEffectOrSkill(const string& effectLeft, const string& effectRight)
 {
 	string result = effectLeft;
 	for (int i = (int)effectLeft.size(); i < SCREEN_WIDTH - (int)effectRight.size() - 4; i++) {
@@ -234,33 +277,9 @@ inline string DisplayEffectOrSkill(const string& effectLeft, const string& effec
 }
 
 
-// resize screen buffer to match console window size to avoid scrollbar
-inline void RemoveScrollbars()
+// display action the user can do in the current state
+string DisplayInstructions(InstructionType type) 
 {
-	HANDLE handleConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	// retrieve screen buffer info
-	CONSOLE_SCREEN_BUFFER_INFO scrBufferInfo;
-	GetConsoleScreenBufferInfo(handleConsole, &scrBufferInfo);
-
-	// current window size
-	short winWidth = scrBufferInfo.srWindow.Right - scrBufferInfo.srWindow.Left + 1;
-	short winHeight = scrBufferInfo.srWindow.Bottom - scrBufferInfo.srWindow.Top + 1;
-
-	// current screen buffer size
-	short scrBufferWidth = scrBufferInfo.dwSize.X;
-	short scrBufferHeight = scrBufferInfo.dwSize.Y;
-
-	// to remove the scrollbar the window height must match the screen buffer height
-	COORD newSize{ scrBufferWidth, winHeight };
-
-	// set new screen buffer dimensions
-	SetConsoleScreenBufferSize(handleConsole, newSize);
-}
-
-
-inline string DisplayInstructions(InstructionType type) {
-
 	string right, left, up, down;
 	right += char(16);
 	left += char(17);
@@ -279,7 +298,7 @@ inline string DisplayInstructions(InstructionType type) {
 
 
 // prepare the name to be written on a tombstone (fit and center it in a 39-characters string)
-string CarveNameToTombstone(string name) 
+string CarveNameToTombstone(string name)
 {
 	// name too long ? we cut
 	if (name.size() >= 39)
@@ -312,8 +331,10 @@ vector<string> SplitString(string source, const string& separator)
 	return result;
 }
 
+
 // from two multiline string (ascii art), we made one with the two image side to side
-string MergeTombstone(const string& ts1, const string& ts2) {
+string MergeTombstone(const string& ts1, const string& ts2)
+{
 	vector<string>&& listLines1 = SplitString(ts1, "\n");
 	vector<string>&& listLines2 = SplitString(ts2, "\n");
 
@@ -321,20 +342,21 @@ string MergeTombstone(const string& ts1, const string& ts2) {
 	for (int i = 0; i < (int)listLines1.size(); i++) {
 		// draw line of left tombstone
 		twoTombstone += listLines1[i];
-		
+
 		// go to the position of the second ascii image (70 char from left border)
 		for (int j = listLines1[i].size(); j < 60; j++)
 			twoTombstone += " ";
-		
+
 		// draw line of right tombstone
 		twoTombstone += listLines2[i] + "\n";
 	}
 	return twoTombstone;
 }
+
 #pragma endregion
 
 
-// display form with selector to chose the language
+// display selector to chose the language
 void UIManager::SelectLanguage()
 {
 	// get available languages
@@ -428,6 +450,8 @@ void UIManager::SelectLanguage()
 	}
 }
 
+
+// move and resize Console for the content to fit perfectly
 void UIManager::SetupConsoleSize()
 {
 	// set windows pos and size
@@ -451,11 +475,14 @@ void UIManager::DisplayBattleEnd()
 
 
 // First display of he battle
-void UIManager::DisplayBattleStart(Hero& left, Hero& right) {
+void UIManager::DisplayBattleStart(Hero& left, Hero& right)
+{
 	LogSummary("\n\t\t" + GetT("BATTLE_BEGIN"));
 	DrawNewTurn(left, right);
 }
 
+
+// Generate the game over in _summary, ready to be display
 void UIManager::PrepareGameOverScreen(Hero& hero1, Hero& hero2)
 {
 	string tombstone1, tombstone2;
@@ -465,7 +492,7 @@ void UIManager::PrepareGameOverScreen(Hero& hero1, Hero& hero2)
 		tombstone1 = Format(GetT("GAME_OVER"), name.c_str());
 	}
 
-	if (hero2._stats._currentHP == 0){
+	if (hero2._stats._currentHP == 0) {
 		string name = CarveNameToTombstone(hero2._name);
 		tombstone2 = Format(GetT("GAME_OVER"), name.c_str());
 	}
@@ -576,6 +603,59 @@ void UIManager::SelectHero(Hero& hero, int numHero, const string& firstHeroName,
 }
 
 
+// ask for user if he want to start again (return true) or close the app
+bool UIManager::SelectRestartOrQuit()
+{
+	string title = DrawNiceLine() + "\n\n\t" + GetT("RESTART_OR_QUIT") + "\n\n\t";
+
+	int curSelection = 0;
+	string arrowUp, arrowDown, sep = " | ";
+	arrowUp += char(30);
+	arrowDown += char(31);
+
+	while (1) {
+		CleanScreen();
+		string screen = title;
+
+		if (curSelection == 0)
+			screen += "> [ " + GetT("RESTART") + " ]\n\n\t";
+		else
+			screen += GetT("RESTART") + "\n\n\t";
+
+		if (curSelection == 1)
+			screen += "> [ " + GetT("QUIT") + " ]\n\n";
+		else
+			screen += GetT("QUIT") + "\n\n";
+
+		// reaching last displayed line...
+		screen = AddEmptyLinesUntilBottomScreen(screen);
+
+		// ... to display instructions (can't use DisplayInstructions() because we need to specify a language
+		screen += "\t\t" + arrowUp;
+		screen += " | " + arrowDown + GetT("INSTRUCTIONS_MOVE");
+		screen += "\t\t" + GetT("INSTRUCTIONS_SELECT");
+		screen += "\n" + DrawNiceLine();
+		cout << screen;
+
+		// get user input
+		switch (GetInputKeyVerticalSelection()) {
+		case VerticalSelection::DOWN:
+			curSelection++;
+			curSelection = min(curSelection, 1);
+			break;
+		case VerticalSelection::UP:
+			curSelection--;
+			curSelection = max(0, curSelection);
+			break;
+		case VerticalSelection::SELECT:
+			if (curSelection == 0)
+				return true;
+			return false;
+		}
+	}
+}
+
+
 // draw a beautiful line in console (for first and last line of screen display)
 string UIManager::DrawNiceLine()
 {
@@ -626,7 +706,8 @@ string UIManager::DrawStats(Hero& left, Hero& right)
 		display += shieldsDraw;
 		display += DisplayValue(false, left._stats, right._stats);
 		display += AddEmtpyLine(SeparatorType::MIDDLE);
-	} else
+	}
+	else
 		display += AddEmtpyLine(SeparatorType::MIDDLE);
 
 	// SKILLS COOLDOWN
@@ -640,7 +721,7 @@ string UIManager::DrawStats(Hero& left, Hero& right)
 		// add tab for next skill line, or empty line if over to separate
 		if (i + 1 == maxSkillsNb && maxEffectsNb > 0)
 			display += AddEmtpyLine(SeparatorType::MIDDLE);	// last skill, add separator if there is effects after
-		else if(maxEffectsNb == 0)
+		else if (maxEffectsNb == 0)
 			display += AddEmtpyLine(SeparatorType::END);	// last skill, no effect to display
 		else
 			display += AddEmtpyLine();						// empty line before next skill
@@ -706,15 +787,6 @@ bool UIManager::DisplayNextTurn()
 	_currentTurn++;
 	cout << _history[_currentTurn];
 	return true;
-}
-
-
-// static methode return true if the string contains only numeric characters ("-" and "./," not allowed)
-bool UIManager::IsNumber(const string& s)
-{
-	std::string::const_iterator it = s.begin();
-	while (it != s.end() && std::isdigit(*it)) ++it;
-	return !s.empty() && it == s.end();
 }
 
 
@@ -832,9 +904,10 @@ string UIManager::DisplayClassSelector(Hero& hero, int numHero)
 	}
 }
 
-// Get question linked to questionKey, display it to user and return answer
-bool UIManager::AskUserYesNoQuestion(const string& questionKey) {
 
+// Get question linked to questionKey, display it to user and return answer
+bool UIManager::AskUserYesNoQuestion(const string& questionKey) 
+{
 	string log = "\n\n\t" + GetT(questionKey.c_str());
 	cout << log;
 	while (1) {
@@ -878,7 +951,8 @@ NextDisplay UIManager::GetInputKeyForwardBackward()
 
 
 // wait for an entry from user : left, right, or enter only; used for selectors (languages, heroes, class for custom hero)
-VerticalSelection UIManager::GetInputKeyVerticalSelection() {
+VerticalSelection UIManager::GetInputKeyVerticalSelection() 
+{
 	while (1) {
 		int key = _getch();
 		if (key == 224)

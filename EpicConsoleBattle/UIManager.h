@@ -62,6 +62,7 @@ public:
     void LogTurnCount(int);
     void SelectHero(Hero&, int numHero, const string& firstHeroClass = "", const string& firstHeroName = "");
     bool DisplayNextTurn();
+    bool SelectRestartOrQuit();
     bool AskUserYesNoQuestion(const string& questionKey);
     string DisplayClassSelector(Hero&, int numHero);
     NextDisplay GetInputKeyForwardBackward();

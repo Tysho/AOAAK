@@ -1,4 +1,4 @@
-// Class HeroClass (determine if the hero has a shield and Hero, describing hero objects
+// structs and Classes about the Heroes and their attributes : weapon, stats, HeroClass, Hero
 #pragma once
 
 #include <string>
@@ -15,6 +15,7 @@ struct Weapon {
 	int _damages = 10;
 };
 
+
 // { HP, shield } (current and max)
 struct Stats {
 	Stats() {};
@@ -29,7 +30,8 @@ struct Stats {
 	int _currentShield = 100;
 };
 
-// class of the hero (orc, elf, human); The hero class determine the skills of the hero
+
+// "type/race/class" of the hero (orc, elf, human); The hero class determine the skills of the hero
 class HeroClass {
 public:
 	// cons/destructor/operators
@@ -53,6 +55,7 @@ public:
 public:
 	static void InitClasses();
 };
+
 
 class Hero
 {
@@ -79,6 +82,7 @@ private:
 	// methods
 public:
 	void EndTurn();
+	void UpdateEffects();
 	void EquipWeapon(const Weapon weapon);
 	void SetClass(const HeroClass& heroClass);
 	void Stun(int duration);

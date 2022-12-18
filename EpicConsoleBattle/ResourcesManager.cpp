@@ -9,7 +9,8 @@ vector<Hero*> ResourcesManager::_listHeroes;
 string ResourcesManager::_currentLanguage;
 
 
-string ToAscii(const string& text) {
+string ToAscii(const string& text)
+{
     const char* s = text.c_str();
     char buffer[10000];
     CharToOemA(s, buffer);
@@ -142,14 +143,14 @@ bool ResourcesManager::LoadHeroes()
         
         // HERO HP
         int hp = 50;
-        if (UIManager::IsNumber(tokens[2]) == false || atoi(tokens[2].c_str()) == 0)
+        if (UI().IsNumber(tokens[2]) == false || atoi(tokens[2].c_str()) == 0)
             parseError += "Invalid HP value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[2] + "\" ; 50 used by default\n";
         else
             hp = atoi(tokens[2].c_str());
 
         // HERO SHIELD
         int shield = 0;
-        if (tokens[3] != "" && UIManager::IsNumber(tokens[3]) == false)
+        if (tokens[3] != "" && UI().IsNumber(tokens[3]) == false)
             parseError += "Invalid Shield value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[3] + "\" ; 0 used by default\n";
         else
             shield = atoi(tokens[3].c_str());
@@ -160,7 +161,7 @@ bool ResourcesManager::LoadHeroes()
 
         // HERO WEAPON'S DAMAGE
         weapon._damages = 5;
-        if (tokens[5] != "" && UIManager::IsNumber(tokens[5]) == false)
+        if (tokens[5] != "" && UI().IsNumber(tokens[5]) == false)
             parseError += "Invalid damage value for Hero [" + to_string(_listHeroes.size() + 1) + "] : must be number, is \"" + tokens[5] + "\" ; 5 used by default\n";
         else
             weapon._damages = atoi(tokens[5].c_str());

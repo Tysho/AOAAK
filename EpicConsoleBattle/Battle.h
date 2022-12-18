@@ -1,3 +1,6 @@
+// manage battle, contain information of the two heroes and 
+//
+
 #pragma once
 
 #include "Hero.h"
@@ -18,7 +21,6 @@ private:
 	bool _gameOver = false;
 	Hero& _hero1;
 	Hero& _hero2;
-	vector<Effect*> _listModifiers;
 
 public:
 	void PlayTurn();

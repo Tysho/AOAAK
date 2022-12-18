@@ -1,3 +1,5 @@
+// virtual Skill class, inherit by classes describing the spells of each HeroClass
+
 #pragma once
 
 using namespace std;
@@ -9,7 +11,7 @@ public:										\
 	virtual ~classname() {};				\
 public:										\
 	virtual bool Cast(Hero& target) final;	\
-	int GetCode() { return code; };			\
+	virtual int GetCode() { return code; };	\
 };
 
 enum class TypeTarget {
@@ -38,11 +40,11 @@ public:
 	// Methods
 public:
 	virtual bool Cast(Hero& target) { _timer = _cooldown; return false; };
+	virtual int GetCode() { return -1; };		// to be overriden, having code allow to create a new skill instance
 
 	void EndTurn() { _timer--; };
-	int GetCode() { return -1; };
 	const char* GetName();
-	string GetResume();
+	string GetResume();							
 	static Skill* CreateSkillInstanceById(int idSkill);
 };
 

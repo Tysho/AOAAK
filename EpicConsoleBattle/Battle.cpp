@@ -35,7 +35,7 @@ void Battle::InitBattle()
 
 // Play a turn and prepare the summary as string
 void Battle::PlayTurn()
-{ 
+{
     // get lists of available skills
     vector<Skill*>&& listSkills1 = _hero1.GetAvailableSkillsThisTurn();
     vector<Skill*>&& listSkills2 = _hero2.GetAvailableSkillsThisTurn();
@@ -60,7 +60,7 @@ void Battle::PlayTurn()
 
     // knight skills
     for (Skill* pSkill : listSkills2) {
-        if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)            
+        if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::opponent)
             UseSkill(_hero2, pSkill, _hero1);
 
         if (pSkill->_target == TypeTarget::both || pSkill->_target == TypeTarget::self)
@@ -96,10 +96,15 @@ void Battle::PlayTurn()
         UI().LogSummary(log + "\n");
     }
 
-   UI().LogSummary("\n");
+    // update effect (could apply effect)
+    _hero1.UpdateEffects();
+    _hero2.UpdateEffects();
+
+    UI().LogSummary("\n");
 }
 
-void Battle::EndTurn() {
+void Battle::EndTurn() 
+{
     _hero1.EndTurn();
     _hero2.EndTurn();
 }

@@ -3,7 +3,6 @@
 
 #include "Effect.h"
 #include "Skill.h"
-#include "UIManager.h"
 #include "ResourcesManager.h"
 
 #define LOG(str) cout << "\n\t"; cout << str;
@@ -17,14 +16,6 @@ using namespace std;
 
 vector<HeroClass> HeroClass::_listClasses = vector<HeroClass>();
 
-HeroClass::HeroClass(const string& name, vector<int> listSkills, const string& description) :
-    _name(name),
-    _description(description)
-{
-    for (int skillId : listSkills)
-        _listSkillsId.push_back(skillId);
-};
-
 void HeroClass::InitClasses()
 {
     _listClasses = {
@@ -33,6 +24,14 @@ void HeroClass::InitClasses()
         HeroClass(GetT("ELF"),{ ARROW_KNEE }, GetT("ELF_DESCRIPTION"))
     };
 }
+
+HeroClass::HeroClass(const string& name, vector<int> listSkills, const string& description) :
+    _name(name),
+    _description(description)
+{
+    for (int skillId : listSkills)
+        _listSkillsId.push_back(skillId);
+};
 
 HeroClass& HeroClass::operator=(const HeroClass& other)
 {
@@ -73,10 +72,24 @@ Hero& Hero::operator=(Hero& other)
     _weapon = other._weapon;
     _stats = other._stats;				// hp&shield, current and max values
     _stun = other._stun;
-    _listSkills = other._listSkills;
     _isLeft = other._isLeft;
+
+    // clean skill list
+    for (Skill* pSkill : _listSkills) {
+        if (pSkill)
+            delete pSkill;
+    }
+    _listSkills.clear();
+
+    // skills copy
+    for (Skill* pSkill : other._listSkills) {
+        int code = pSkill->GetCode();
+        Skill* pCopy = Skill::CreateSkillInstanceById(code);
+        _listSkills.push_back(pCopy);
+    }
     return *this;
 }
+
 
 // update shield and hp according to damage recieved, return summary
 string Hero::RecieveDamages(int damages)
@@ -131,13 +144,22 @@ vector<Skill*> Hero::GetAvailableSkillsThisTurn()
 }
 
 
-// End turn of the Hero : update skills cooldown and update effects, removing expired ones 
+// End turn of the Hero : update skills cooldown
 void Hero::EndTurn()
 {
     _stun = max(_stun - 1, 0);
     for (Skill* pSkill : _listSkills)
         pSkill->EndTurn();
 
+    // remove expired effects
+    auto expired = [](Effect* pE) {return pE->GetDurationLeft() == 0; };
+    _listEffects.erase(std::remove_if(_listEffects.begin(), _listEffects.end(), expired), _listEffects.end());
+}
+
+
+// update effect, eventually apply
+void Hero::UpdateEffects() 
+{
     vector<Effect*> listExpired;
     for (Effect* pEffect : _listEffects) {
         if (pEffect->Update() > 0)
@@ -146,12 +168,10 @@ void Hero::EndTurn()
         // expired
         pEffect->Expire();
     }
-
-    // remove expired effects
-    auto expired = [](Effect* pE) {return pE->GetDurationLeft() == 0; };
-    _listEffects.erase(std::remove_if(_listEffects.begin(), _listEffects.end(), expired), _listEffects.end());
 }
 
+
+// copy weapon stats to the hero's one
 void Hero::EquipWeapon(const Weapon weapon)
 {
     _weapon._name = weapon._name;
@@ -178,6 +198,7 @@ int Hero::GetDamages() {
 
     return damages;
 }
+
 
 // Return number of effect affecting the hero (stun + effects)
 int Hero::GetNbEffects()
@@ -240,6 +261,8 @@ string Hero::GetEffectResume(int i)
     return result;
 }
 
+
+// return the resume (name + cooldown) of a hero skill by his index
 string Hero::GetSkillResume(int i)
 {
     if (i >= (int)_listSkills.size())

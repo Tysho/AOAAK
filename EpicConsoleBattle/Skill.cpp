@@ -8,11 +8,14 @@
 
 #define LOG(str) cout << "\n\t"; cout << str;
 
+// return name as const char* for Format function in UIManager
 const char* Skill::GetName()
 { 
     return _name.c_str();
 }
 
+
+// return resume (name + cooldown) of the skill
 string Skill::GetResume()
 {
     string resume = _name + " : ";
@@ -27,8 +30,10 @@ string Skill::GetResume()
     return resume;
 }
 
-// static function declaration
-Skill* Skill::CreateSkillInstanceById(int idSkill) {
+
+// generate a new skill from his code
+Skill* Skill::CreateSkillInstanceById(int idSkill) 
+{
     switch (idSkill) {
     case STUN:
         return new Stun;
@@ -39,6 +44,7 @@ Skill* Skill::CreateSkillInstanceById(int idSkill) {
     }
     return nullptr;
 }
+
 
 #pragma region STUN
 
